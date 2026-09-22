@@ -31,7 +31,7 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install '.[code,bundle]'
       - run: python scripts/build_native.py
-      - run: npm pack --ignore-scripts --pack-destination dist
+      - run: python scripts/pack_npm.py
       - run: python scripts/smoke_npm.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

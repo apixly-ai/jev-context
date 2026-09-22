@@ -1,0 +1,63 @@
+{
+  "kind": "source-versus-distribution",
+  "scope": "32 synthetic DNS signals, two alternating-order runs; includes process startup and Jev, excludes installation. No main-agent continuation.",
+  "platform": "Darwin",
+  "fixture_sha256": "f95307cd320f430255c3c2c3225869a9111f25e1be3b2b6f0d64c972a5ef02e8",
+  "native_sha256": "b45525f656fcaa5cedad75b583f053fb455116aeda2584d9b7cc2e9c7e375d4a",
+  "cache_enabled": false,
+  "model": "jev-1.13.0",
+  "rows": [
+    {
+      "arm": "python",
+      "repeat": 0,
+      "elapsed_ms": 1260,
+      "exit_code": 0,
+      "stdout_chars": 5661,
+      "exact": true,
+      "usage": {
+        "input_tokens": 4583,
+        "output_tokens": 1273
+      },
+      "usage_complete": true
+    },
+    {
+      "arm": "native",
+      "repeat": 0,
+      "elapsed_ms": 2570,
+      "exit_code": 0,
+      "stdout_chars": 5661,
+      "exact": true,
+      "usage": {
+        "input_tokens": 4583,
+        "output_tokens": 1273
+      },
+      "usage_complete": true
+    },
+    {
+      "arm": "native",
+      "repeat": 1,
+      "elapsed_ms": 1105,
+      "exit_code": 0,
+      "stdout_chars": 5660,
+      "exact": true,
+      "usage": {
+        "input_tokens": 4583,
+        "output_tokens": 1273
+      },
+      "usage_complete": true
+    },
+    {
+      "arm": "python",
+      "repeat": 1,
+      "elapsed_ms": 1096,
+      "exit_code": 0,
+      "stdout_chars": 5660,
+      "exact": true,
+      "usage": {
+        "input_tokens": 4583,
+        "output_tokens": 1273
+      },
+      "usage_complete": true
+    }
+  ]
+}

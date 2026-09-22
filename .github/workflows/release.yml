@@ -34,7 +34,7 @@ jobs:
           python scripts/check_release.py "$GITHUB_REF_NAME"
           sh scripts/check.sh
           python -m pip_audit -f cyclonedx-json -o dist/dependencies.cdx.json
-          npm pack --ignore-scripts --pack-destination dist
+          python scripts/pack_npm.py
           cd dist && sha256sum *.whl *.tar.gz *.tgz dependencies.cdx.json > SHA256SUMS
       - uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
         with:

@@ -15,11 +15,9 @@
 
 ## Why Jev Context?
 
-| Advantage | What changes | Evidence |
-|---|---|---|
-| **Less context to read** | Filter before raw output enters the primary agent. Keep originals available by ID. | Historical workflows returned **88–97% less context**. [Scope and trade-offs →](docs/benchmarks.md#historical-prototype-primary-agent-workflow-comparison) |
-| **Less repeated model work** | Pack compatible questions automatically; run independent requests concurrently, up to 30. | Public benchmark: **56.5% fewer Jev input tokens**, **32.4% faster** than single-record parallel calls. [Reproduce →](docs/benchmarks.md#public-package-measured-2026-09-22) |
-| **Decisions you can inspect** | The caller defines the goal, context, questions and output. Missing facts remain `REVIEW`; originals stay local. | **8/8 exact fixture runs** and three installed workflow acceptance checks. [Data →](benchmarks/results/2026-09-22-migration.json) |
+- **Send less context to the primary agent.** Filter before raw output enters the conversation; recover originals by ID. Historical workflows returned **88–97% less context**. [Evidence and trade-offs →](docs/benchmarks.md#historical-prototype-primary-agent-workflow-comparison)
+- **Spend less on repeated Jev input.** Automatic packing plus up to 30 concurrent requests. The public benchmark used **56.5% fewer input tokens** and ran **32.4% faster** than single-record parallel calls. [Reproduce →](docs/benchmarks.md#public-package-measured-2026-09-22)
+- **Keep decisions inspectable.** The agent controls the context, questions and output; missing facts remain `REVIEW`. **8/8 exact fixture runs**, plus three installed workflow acceptance checks. [Public data](benchmarks/results/2026-09-22-live.json) · [Integration evidence](benchmarks/results/2026-09-22-migration.json)
 
 Use it for **many records + repeated semantic judgment + clear criteria**. Use native tools for exact paths, IDs, selectors, calculations and short results. Keep open-ended reasoning and writing in your primary model.
 

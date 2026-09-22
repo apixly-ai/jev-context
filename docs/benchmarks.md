@@ -121,3 +121,27 @@ Charts are rendered by `python scripts/render_assets.py` with the `docs` extra.
 The public chart reads the checked-in JSON directly. Historical chart values are
 explicitly labeled prototype observations. Neither illustration claims a general
 accuracy guarantee or a measured whole-agent speedup for this release.
+
+## Native distribution parity / npm 平台运行时一致性
+
+[Source/native observations](../benchmarks/results/2026-09-23-distribution.json) compare
+32 synthetic DNS signals across two alternating-order runs, including process startup
+and network inference. All four runs returned 32/32 expected judgments with exactly
+4,583 input and 1,273 output tokens per run. Returned JSON was 5,660–5,661 characters
+in both arms. The native executable averaged 1.838 s versus Python's 1.178 s;
+the individual native runs were 2.570 s and 1.105 s. This small sample does not isolate
+startup from network variance and does not demonstrate a native speedup.
+
+The native bundle removes installation prerequisites while preserving decisions and
+model usage in this fixture. It does not reduce inference cost by itself. The Node
+launcher is separately tested through real tarball installation; this timing compares
+the underlying native executable, not the extra Node launcher or npm installation.
+
+```sh
+python -m benchmarks.distribution --live \
+  --native /path/to/native/jev-context \
+  --output local-results/distribution-new.json
+```
+
+原生发行包的优势是开箱可用，本测试证明的是接口/结果/用量一致性。它不是新一轮
+语义优化，不承诺速度收益；首个原生样本更慢的结果也完整保留。

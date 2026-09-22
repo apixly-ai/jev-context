@@ -14,11 +14,9 @@
 
 ## 三个核心优势
 
-| 优势 | 具体改变 | 有什么证据 |
-|---|---|---|
-| **主模型少读无关内容** | 先筛选再返回；原文留在本地，需要时按 ID 取回。 | 历史流程返回上下文减少 **88–97%**。[范围与代价 →](docs/benchmarks.md#historical-prototype-primary-agent-workflow-comparison) |
-| **减少重复推理开销** | 自动合并兼容问题，独立请求并发执行，上限 30。 | 公开测试中 Jev 输入 token 减少 **56.5%**，相比单条并发快 **32.4%**。[复现 →](docs/benchmarks.md#public-package-measured-2026-09-22) |
-| **结果可复核，规则由 AI 控制** | 自定义目标、上下文、问题和输出；缺事实保留 `REVIEW`，不静默丢弃。 | **8/8 组测试结果正确**，三条已安装流程通过验收。[数据 →](benchmarks/results/2026-09-22-migration.json) |
+- **让主模型少读无关内容。** 先筛选再返回，需要时按 ID 取回原文。历史流程的返回上下文减少 **88–97%**。[证据与代价 →](docs/benchmarks.md#historical-prototype-primary-agent-workflow-comparison)
+- **减少 Jev 的重复输入开销。** 自动合批，最多 30 个请求并发。公开测试输入 token 减少 **56.5%**，相比单条并发快 **32.4%**。[复现方法 →](docs/benchmarks.md#public-package-measured-2026-09-22)
+- **规则由 AI 控制，结果可复核。** 自定义上下文、问题与输出；缺事实保留 `REVIEW`。**8/8 组测试结果正确**，三条已安装流程通过验收。[公开数据](benchmarks/results/2026-09-22-live.json) · [集成证据](benchmarks/results/2026-09-22-migration.json)
 
 适合 **记录多、语义判断重复、标准明确** 的任务。精确路径、ID、selector、计算和少量短结果优先用原生工具；开放推理和写作仍交给主模型。
 
