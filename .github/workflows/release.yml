@@ -35,6 +35,7 @@ jobs:
           sh scripts/check.sh
           python -m pip_audit -f cyclonedx-json -o dist/dependencies.cdx.json
           python scripts/pack_npm.py
+          python scripts/check_packages.py
           cd dist && sha256sum *.whl *.tar.gz *.tgz dependencies.cdx.json > SHA256SUMS
       - uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
         with:

@@ -6,6 +6,7 @@ import io
 import json
 import platform
 import shutil
+import ssl
 import subprocess
 import sys
 import tarfile
@@ -77,6 +78,9 @@ def main():
         shutil.rmtree(stage)
     stage.mkdir(parents=True)
     shutil.copytree(out / "jev-filter", stage / "bin")
+    # Installer origin metadata can contain a local checkout path; it is not runtime data.
+    for metadata_file in (stage / "bin").rglob("direct_url.json"):
+        metadata_file.unlink()
     metadata = {
         "name": f"@apixly/jev-filter-{target}",
         "version": package["version"],
@@ -85,7 +89,7 @@ def main():
         "cpu": [arch],
         "license": "MIT",
         "repository": package["repository"],
-        "files": ["bin", "LICENSE", "NOTICE", "THIRD_PARTY_LICENSES"],
+        "files": ["bin", "LICENSE", "NOTICE", "THIRD_PARTY_LICENSES", "BUILDINFO.json"],
     }
     (stage / "package.json").write_text(json.dumps(metadata, indent=2) + "\n")
     for name in ["LICENSE", "NOTICE"]:
@@ -136,6 +140,29 @@ def main():
                 (licenses / f"ripgrep-{name}").write_bytes(tar.extractfile(member).read())
     if not found:
         raise ValueError("ripgrep executable missing")
+    openssl_version = ssl.OPENSSL_VERSION.split()[1]
+    openssl_license = (
+        f"https://raw.githubusercontent.com/openssl/openssl/openssl-{openssl_version}/LICENSE.txt"
+    )
+    (licenses / "OPENSSL-LICENSE.txt").write_bytes(download(openssl_license))
+    inventory = {
+        "package": metadata["name"],
+        "version": metadata["version"],
+        "target": target,
+        "python": platform.python_version(),
+        "openssl": openssl_version,
+        "pyinstaller": importlib.metadata.version("pyinstaller"),
+        "ripgrep_archive_sha256": rg["sha256"],
+        "runtime_files": {
+            str(file.relative_to(stage)): {
+                "bytes": file.stat().st_size,
+                "sha256": hashlib.sha256(file.read_bytes()).hexdigest(),
+            }
+            for file in sorted((stage / "bin").rglob("*"))
+            if file.is_file()
+        },
+    }
+    (stage / "BUILDINFO.json").write_text(json.dumps(inventory, indent=2) + "\n")
     destination = ROOT / "dist"
     destination.mkdir(exist_ok=True)
     subprocess.run(

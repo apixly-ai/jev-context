@@ -47,3 +47,5 @@ npm trusted publishing should use the repository's `publish-npm.yml` workflow af
 the package-level trusted publisher is configured. It avoids a long-lived registry
 secret; GitHub's OIDC provenance ties publication to the workflow/source.
 The first package can be bootstrapped with an authenticated maintainer session.
+
+Each platform package includes `BUILDINFO.json` with runtime versions and file hashes; installer-origin paths are removed and package contents checked before publication.
