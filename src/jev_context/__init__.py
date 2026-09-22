@@ -3,6 +3,6 @@
 from importlib.metadata import PackageNotFoundError, version
 
 try:
-    __version__ = version("jev-context")
+    __version__ = version("jev-filter")
 except PackageNotFoundError:
-    __version__ = "0.1.0rc1"
+    __version__ = "0.1.0"

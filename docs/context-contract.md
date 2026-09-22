@@ -1,5 +1,7 @@
 # Context and decision contract
 
+[简体中文](context-contract.zh-CN.md)
+
 Jev cannot see the calling agent's chat history. Supply the information that can
 change the decision: precise goal, intended scope, verified facts with references,
 exclusions, success criteria and expected output. Do not paste the entire chat or
@@ -16,6 +18,11 @@ record's metadata. The collector supplies current observations and revisions.
   "required_record_fields": ["source.project", "source.format"]
 }
 ```
+
+Input records use top-level metadata, for example
+`{"id":"b","text":"Export report","project":"Beta","format":"JSON"}`.
+The CLI normalizes that metadata under `source`, so the required paths above are
+`source.project` and `source.format`. Do not add an extra `source` wrapper to this input.
 
 This requires a collector that actually emits project/format metadata. Missing,
 null or empty required caller values stop before collection/inference. False and

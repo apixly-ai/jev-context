@@ -1,0 +1,43 @@
+{
+  "name": "@apixly/jev-filter",
+  "version": "0.1.0",
+  "description": "Task-aware semantic tools for AI agents. Native runtime included.",
+  "license": "MIT",
+  "author": "JIA-ss",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apixly-ai/jev-filter.git"
+  },
+  "homepage": "https://apixly-ai.github.io/jev-filter/",
+  "bugs": {
+    "url": "https://github.com/apixly-ai/jev-filter/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "jev-filter": "npm/bin/jev-filter.cjs",
+    "jev-context": "npm/bin/jev-filter.cjs"
+  },
+  "files": [
+    "npm/bin",
+    "skills",
+    "examples",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "scripts": {
+    "test": "node --test npm/tests/*.test.cjs"
+  },
+  "optionalDependencies": {
+    "@apixly/jev-filter-darwin-arm64": "0.1.0",
+    "@apixly/jev-filter-darwin-x64": "0.1.0",
+    "@apixly/jev-filter-linux-arm64": "0.1.0",
+    "@apixly/jev-filter-linux-x64": "0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

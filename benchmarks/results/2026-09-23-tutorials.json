@@ -1,0 +1,176 @@
+{
+  "complete": true,
+  "scope": "Documented CLI/agent examples with synthetic inputs and live Jev. Missing-context and plan checks make no inference. No browser action or customer message.",
+  "rows": [
+    {
+      "name": "doctor-live",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 1002,
+      "selected_ids": null,
+      "review_ids": null,
+      "usage": {
+        "input_tokens": 311,
+        "output_tokens": 31
+      }
+    },
+    {
+      "name": "agent-quickstart",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 914,
+      "selected_ids": [
+        "b"
+      ],
+      "review_ids": [],
+      "usage": {
+        "input_tokens": 528,
+        "output_tokens": 57
+      }
+    },
+    {
+      "name": "missing-context",
+      "passed": true,
+      "exit_code": 2,
+      "elapsed_ms": 69,
+      "selected_ids": [],
+      "review_ids": [],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      }
+    },
+    {
+      "name": "agent-quickstart.zh-CN",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 807,
+      "selected_ids": [
+        "b"
+      ],
+      "review_ids": [],
+      "usage": {
+        "input_tokens": 534,
+        "output_tokens": 57
+      }
+    },
+    {
+      "name": "missing-context.zh-CN",
+      "passed": true,
+      "exit_code": 2,
+      "elapsed_ms": 54,
+      "selected_ids": [],
+      "review_ids": [],
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      }
+    },
+    {
+      "name": "query-plan",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 57,
+      "selected_ids": null,
+      "review_ids": null,
+      "usage": null
+    },
+    {
+      "name": "exec",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 1509,
+      "selected_ids": [
+        "item-011",
+        "item-052"
+      ],
+      "review_ids": [],
+      "usage": {
+        "input_tokens": 12499,
+        "output_tokens": 3909
+      }
+    },
+    {
+      "name": "list",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 61,
+      "selected_ids": null,
+      "review_ids": null,
+      "usage": null
+    },
+    {
+      "name": "read",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 49,
+      "selected_ids": null,
+      "review_ids": null,
+      "usage": null
+    },
+    {
+      "name": "triage",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 981,
+      "selected_ids": [
+        "correlated:req-013",
+        "correlated:req-047"
+      ],
+      "review_ids": [],
+      "usage": {
+        "input_tokens": 39020,
+        "output_tokens": 5709
+      }
+    },
+    {
+      "name": "code-search",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 1385,
+      "selected_ids": [
+        "session_store.py:persist_session:119"
+      ],
+      "review_ids": [],
+      "usage": {
+        "input_tokens": 21597,
+        "output_tokens": 2925
+      }
+    },
+    {
+      "name": "search-plan",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 74,
+      "selected_ids": null,
+      "review_ids": null,
+      "usage": null
+    },
+    {
+      "name": "typed-batch",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 692,
+      "selected_ids": null,
+      "review_ids": null,
+      "usage": {
+        "input_tokens": 310,
+        "output_tokens": 31
+      }
+    },
+    {
+      "name": "locate",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_ms": 1129,
+      "selected_ids": [
+        "13"
+      ],
+      "review_ids": [],
+      "usage": {
+        "input_tokens": 4727,
+        "output_tokens": 546
+      }
+    }
+  ]
+}

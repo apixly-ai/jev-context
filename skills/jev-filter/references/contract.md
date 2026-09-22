@@ -1,9 +1,9 @@
 # Contract quick reference
 
 ```sh
-jev-context query --input records.json --task 'Find relevant records' --analysis spec.json
-jev-context exec --task 'Find relevant failures' --analysis spec.json -- python collect.py
-jev-context read /path/from/archive --id source-id
+jev-filter query --input records.json --task 'Find relevant records' --analysis spec.json
+jev-filter exec --task 'Find relevant failures' --analysis spec.json -- python collect.py
+jev-filter read /path/from/archive --id source-id
 ```
 
 Input records are `{id,text,...metadata}`. Common metadata becomes `source.*` in

@@ -1,6 +1,8 @@
 # CLI reference
 
-Use `jev-context --help` and `<command> --help` for exact flags.
+[简体中文](cli.zh-CN.md)
+
+Use `jev-filter --help` and `<command> --help` for exact flags.
 
 | Command | Purpose |
 |---|---|

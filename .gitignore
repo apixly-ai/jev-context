@@ -20,3 +20,5 @@ private/
 local-results/
 site/
 .DS_Store
+node_modules/
+*.tgz

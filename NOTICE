@@ -27,3 +27,7 @@ SOFTWARE.
 Third-party dependencies (installed separately): HTTPX (BSD-3-Clause),
 Tree-sitter and language grammars (MIT). Their distributions contain their
 respective license notices. Test tools are development dependencies only.
+
+Native npm distributions additionally bundle CPython, PyInstaller bootloader/runtime
+components and ripgrep. Their license texts and installed dependency notices are
+included under THIRD_PARTY_LICENSES in each platform package.

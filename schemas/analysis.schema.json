@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Jev Filter analysis contract",
+  "description": "Editor hints; runtime validation also enforces cross-field constraints.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "mode": {
+      "enum": [
+        "filter",
+        "analyze",
+        "choose",
+        "passthrough"
+      ]
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context": {},
+    "required_context": {
+      "$ref": "#/$defs/paths"
+    },
+    "required_record_fields": {
+      "$ref": "#/$defs/paths"
+    },
+    "batch_size": {
+      "oneOf": [
+        {
+          "const": "auto"
+        },
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        }
+      ]
+    },
+    "selection_policy": {
+      "enum": [
+        "unique",
+        "any"
+      ]
+    },
+    "format": {
+      "enum": [
+        "json",
+        "jsonl",
+        "text"
+      ]
+    },
+    "fields": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": [
+          "id",
+          "source_id",
+          "text",
+          "start",
+          "end",
+          "status",
+          "answers",
+          "source",
+          "display_truncated",
+          "decision"
+        ]
+      }
+    },
+    "output": {
+      "type": "object",
+      "minProperties": 1
+    },
+    "questions": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 16,
+      "additionalProperties": {
+        "$ref": "#/$defs/question"
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "expected"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "filter": {
+      "$ref": "#/$defs/rule"
+    },
+    "review": {
+      "$ref": "#/$defs/rule"
+    },
+    "order": {
+      "type": "object",
+      "required": [
+        "question"
+      ],
+      "properties": {
+        "question": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array"
+        },
+        "descending": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "question": {
+      "type": "object",
+      "required": [
+        "type",
+        "instructions"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "choice",
+            "noul",
+            "score"
+          ]
+        },
+        "instructions": {
+          "type": [
+            "string",
+            "object",
+            "array"
+          ]
+        },
+        "criteria": {
+          "type": [
+            "object",
+            "array"
+          ]
+        }
+      }
+    },
+    "paths": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*$"
+      }
+    },
+    "rule": {
+      "type": "object",
+      "required": [
+        "question"
+      ],
+      "properties": {
+        "question": {
+          "type": "string"
+        },
+        "in": {
+          "type": "array",
+          "minItems": 1
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "in"
+          ]
+        },
+        {
+          "required": [
+            "min"
+          ]
+        },
+        {
+          "required": [
+            "max"
+          ]
+        }
+      ],
+      "additionalProperties": false
+    }
+  }
+}

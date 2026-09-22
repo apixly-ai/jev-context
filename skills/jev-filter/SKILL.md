@@ -1,12 +1,12 @@
 ---
-name: jev-context
-description: Use Jev Context for program-owned semantic filtering, candidate selection, code search and grouped log triage when many records need clear typed judgments. Prefer native tools for exact or short tasks; not a replacement for open-ended reasoning or action authorization.
+name: jev-filter
+description: Use Jev Filter for program-owned semantic filtering, candidate selection, code search and grouped log triage when many records need clear typed judgments. Prefer native tools for exact or short tasks; not a replacement for open-ended reasoning or action authorization.
 ---
 
-# Jev Context
+# Jev Filter
 
-Requires an installed `jev-context` CLI and the user's TypeSafe credentials. Use
-`jev-context doctor` for local readiness; `--live` is explicitly billable.
+Requires an installed `jev-filter` CLI and the user's TypeSafe credentials. Use
+`jev-filter doctor` for local readiness; `--live` is explicitly billable.
 
 - Choose `code-search` for symbol-expanded source candidates, `locate` for an
   observed Camofox target, `triage` for correlated JSON/JSONL events, and `exec` or

@@ -1,0 +1,43 @@
+name: Publish npm
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to publish
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: vars.NPM_TRUSTED_PUBLISHING == 'true'
+    environment: npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+      - name: Download and verify released npm package
+        env:
+          TAG: ${{ inputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          case "$TAG" in v[0-9]*.[0-9]*.[0-9]*) ;; *) exit 1 ;; esac
+          mkdir artifacts
+          gh release download "$TAG" --pattern '*.tgz' --pattern SHA256SUMS --dir artifacts
+          cd artifacts
+          sha256sum --check --ignore-missing SHA256SUMS
+          gh attestation verify "apixly-jev-filter-${TAG#v}.tgz" --repo "$GITHUB_REPOSITORY"
+      - name: Publish through configured npm trusted publisher
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          for package in artifacts/apixly-jev-filter-darwin-*.tgz artifacts/apixly-jev-filter-linux-*.tgz; do
+            npm publish "$package" --access public --provenance
+          done
+          npm publish "artifacts/apixly-jev-filter-${TAG#v}.tgz" --access public --provenance
