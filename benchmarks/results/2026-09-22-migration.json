@@ -1,0 +1,110 @@
+{
+  "kind": "local_deployment_acceptance",
+  "scope": "Private installed workflow compatibility; synthetic inputs only. No customer messages or production mutations. Original deployment scripts are not distributed. Not an independent public reproduction.",
+  "migration_ab": {
+    "scope": "Private deployment compatibility A/B, 48 synthetic DNS signals, one choice each, two reversed-order runs. Includes Python process launch. Not a main-model cost benchmark.",
+    "rows": [
+      {
+        "arm": "legacy",
+        "repeat": 0,
+        "elapsed_ms": 1243,
+        "exact": true,
+        "usage": {
+          "input_tokens": 6752,
+          "output_tokens": 1913
+        },
+        "usage_complete": true,
+        "requests": 1,
+        "package_version": null,
+        "raw_in_output": false
+      },
+      {
+        "arm": "public",
+        "repeat": 0,
+        "elapsed_ms": 1798,
+        "exact": true,
+        "usage": {
+          "input_tokens": 6752,
+          "output_tokens": 1913
+        },
+        "usage_complete": true,
+        "requests": 1,
+        "package_version": "0.1.0rc1",
+        "raw_in_output": false
+      },
+      {
+        "arm": "public",
+        "repeat": 1,
+        "elapsed_ms": 1795,
+        "exact": true,
+        "usage": {
+          "input_tokens": 6752,
+          "output_tokens": 1913
+        },
+        "usage_complete": true,
+        "requests": 1,
+        "package_version": "0.1.0rc1",
+        "raw_in_output": false
+      },
+      {
+        "arm": "legacy",
+        "repeat": 1,
+        "elapsed_ms": 1582,
+        "exact": true,
+        "usage": {
+          "input_tokens": 6752,
+          "output_tokens": 1913
+        },
+        "usage_complete": true,
+        "requests": 1,
+        "package_version": null,
+        "raw_in_output": false
+      }
+    ]
+  },
+  "workflows": {
+    "sources": {
+      "backend": "jev-context/typed-batch",
+      "raw_in_stdout": false,
+      "originals_retained": true,
+      "requests": 1,
+      "usage": {
+        "input_tokens": 1746,
+        "output_tokens": 287
+      }
+    },
+    "telegram": {
+      "backend": "jev-context/typed-batch",
+      "raw_in_packet": false,
+      "decisions": [
+        "REPLY",
+        "DO_NOT_CONTACT",
+        "NO_REPLY"
+      ],
+      "requests": 1,
+      "usage": {
+        "input_tokens": 960,
+        "output_tokens": 157
+      },
+      "send_authorized": false
+    },
+    "sre": {
+      "backend": "jev-context/typed-batch",
+      "raw_in_packet": false,
+      "routes": [
+        [
+          "network"
+        ],
+        [
+          "financial"
+        ]
+      ],
+      "requests": 1,
+      "usage": {
+        "input_tokens": 2800,
+        "output_tokens": 270
+      },
+      "execution_authorized": false
+    }
+  }
+}

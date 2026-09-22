@@ -89,3 +89,24 @@ Rates must use the same currency and token unit. Include retries and evidence re
 If usage is incomplete, label cost as a lower bound. Report both negative and positive
 results. Cheap primary models, small inputs, poor context or frequent rereads can erase
 the saving. No fixed dollar claim is inferred from the public model-layer benchmark.
+
+## First-user integration acceptance / 首个用户的集成验收
+
+[Sanitized observations](../benchmarks/results/2026-09-22-migration.json) cover the
+maintainer's installed source annotation, Telegram maintenance planning and SRE
+routing entrypoints with synthetic data and real Jev calls. All three preserved their
+expected decisions and withheld raw input from the compact packet. No message was
+sent and no production action was authorized by the test. Existing workflow scripts,
+identities and fallback contracts remain private and unchanged.
+
+A separate two-repetition migration A/B used 48 synthetic DNS signals and included
+Python process startup: the legacy backend averaged **1.413 s**, the public package
+**1.797 s** (**27.2% slower**). Both returned 48/48 correct decisions on each run and
+identical usage (6,752 input + 1,913 output tokens per run). No raw signals were in
+the returned packet. This small test establishes compatibility, **not a migration
+speedup**. The isolated package boundary and transport differ; two runs cannot
+attribute the difference to one cause. The privacy-preserving integration bridge
+adds a subprocess per whole batch, not per record.
+
+迁移后功能保留，但本次小批量测量没有提速、没有降低模型用量。我们保留这个
+负面结果，不把开源封装本身当成性能优化。合批/并发的收益应与迁移成本分别看。

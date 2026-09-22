@@ -14,8 +14,8 @@ Release procedure:
 
 1. Prepare a PR updating pyproject version and CHANGELOG; include relevant A/B evidence.
 2. Merge only after required checks pass. Tag `v<version>` on the reviewed commit.
-3. The release workflow verifies the tag, builds wheel/sdist, tests the wheel in a
-   clean environment, produces checksums and dependency inventory, and attaches
+3. The release workflow verifies the tag, builds wheel/sdist, validates the package (CI also installs the wheel in a
+   clean environment), produces checksums and dependency inventory, and attaches
    artifacts plus build provenance to a GitHub Release.
 4. Verify installation from the release artifact. Never replace a published tag;
    use a new patch version for a correction.
