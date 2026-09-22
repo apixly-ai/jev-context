@@ -1,0 +1,8 @@
+{
+  "mode": "filter",
+  "requirements": [
+    {"id":"establishment","statement":"The CURRENT request fails during DNS, TCP or TLS establishment.","expected":true},
+    {"id":"response","statement":"The CURRENT request received HTTP response headers.","expected":false}
+  ],
+  "fields": ["source_id", "answers", "source"]
+}

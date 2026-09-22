@@ -1,0 +1,5 @@
+[
+  {"id":"a","text":"Export report","project":"Alpha","format":"JSON"},
+  {"id":"b","text":"Export report","project":"Beta","format":"JSON"},
+  {"id":"c","text":"Export report","project":"Beta","format":"CSV"}
+]

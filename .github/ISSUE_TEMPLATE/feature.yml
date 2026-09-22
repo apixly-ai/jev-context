@@ -1,0 +1,17 @@
+name: Feature proposal
+description: Propose a measurable improvement
+title: "feat: "
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case and current limitation
+    validations:
+      required: true
+  - type: textarea
+    id: evaluation
+    attributes:
+      label: How should we measure success?
+      description: Include a proposed baseline, quality criteria and latency/cost tradeoffs.
+    validations:
+      required: true

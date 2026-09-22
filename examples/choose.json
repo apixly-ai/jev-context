@@ -1,0 +1,6 @@
+{
+  "mode": "choose",
+  "context": {"scope": {"project": "Beta"}, "format": "JSON"},
+  "required_context": ["scope.project", "format"],
+  "required_record_fields": ["source.project", "source.format"]
+}

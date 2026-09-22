@@ -1,0 +1,5 @@
+[
+  {"id":"network","text":"The current request failed during TLS verification before any HTTP response."},
+  {"id":"recovered","text":"An older attempt timed out. The current request returned HTTP 200 with a valid body."},
+  {"id":"unknown","text":"The request failed, but the failing phase and response status were not recorded."}
+]

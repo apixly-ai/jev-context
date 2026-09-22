@@ -1,0 +1,22 @@
+name: Bug report
+description: A reproducible failure with synthetic data
+title: "bug: "
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Include version, OS, Python version and sanitized input. Never include credentials or customer data.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Relevant receipt fields and failure status
+      description: Share only non-sensitive fields. Redact file paths if necessary.
