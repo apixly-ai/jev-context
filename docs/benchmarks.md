@@ -110,3 +110,14 @@ adds a subprocess per whole batch, not per record.
 
 迁移后功能保留，但本次小批量测量没有提速、没有降低模型用量。我们保留这个
 负面结果，不把开源封装本身当成性能优化。合批/并发的收益应与迁移成本分别看。
+
+## Visual summary
+
+![Public batching and concurrency measurement](assets/batch-benchmark.png)
+
+![Historical context, cost and latency trade-offs](assets/workflow-tradeoffs.png)
+
+Charts are rendered by `python scripts/render_assets.py` with the `docs` extra.
+The public chart reads the checked-in JSON directly. Historical chart values are
+explicitly labeled prototype observations. Neither illustration claims a general
+accuracy guarantee or a measured whole-agent speedup for this release.

@@ -5,7 +5,10 @@ on:
 permissions:
   contents: read
 jobs:
+  bundles:
+    uses: ./.github/workflows/native.yml
   release:
+    needs: [bundles]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,6 +19,14 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.13'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: npm-*
+          path: dist
+          merge-multiple: true
       - run: |
           sudo apt-get update && sudo apt-get install -y ripgrep
           python -m pip install --upgrade pip
@@ -23,7 +34,8 @@ jobs:
           python scripts/check_release.py "$GITHUB_REF_NAME"
           sh scripts/check.sh
           python -m pip_audit -f cyclonedx-json -o dist/dependencies.cdx.json
-          cd dist && sha256sum *.whl *.tar.gz dependencies.cdx.json > SHA256SUMS
+          npm pack --ignore-scripts --pack-destination dist
+          cd dist && sha256sum *.whl *.tar.gz *.tgz dependencies.cdx.json > SHA256SUMS
       - uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
         with:
           subject-path: 'dist/*'

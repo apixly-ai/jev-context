@@ -14,3 +14,7 @@ of a 0.x API (minor releases may make documented breaking changes).
 - English/Chinese documentation, agent skill, reproducible benchmarks and release CI.
 
 [0.1.0]: https://github.com/JIA-ss/jev-context/releases
+
+- Native npm distribution for macOS and Linux x64/ARM64, including interpreter, parsers and pinned ripgrep.
+- Visual bilingual README, data-derived charts, runnable recipes and agent integration instructions.
+- Repository moved to Apixly; immutable release tags and restricted workflow permissions.

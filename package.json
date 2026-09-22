@@ -1,0 +1,42 @@
+{
+  "name": "@apixly/jev-context",
+  "version": "0.1.0",
+  "description": "Task-aware semantic tools for AI agents. Native runtime included.",
+  "license": "MIT",
+  "author": "JIA-ss",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apixly-ai/jev-context.git"
+  },
+  "homepage": "https://github.com/apixly-ai/jev-context",
+  "bugs": {
+    "url": "https://github.com/apixly-ai/jev-context/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "jev-context": "npm/bin/jev-context.cjs"
+  },
+  "files": [
+    "npm/bin",
+    "skills",
+    "examples",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "scripts": {
+    "test": "node --test npm/tests/*.test.cjs"
+  },
+  "optionalDependencies": {
+    "@apixly/jev-context-darwin-arm64": "0.1.0",
+    "@apixly/jev-context-darwin-x64": "0.1.0",
+    "@apixly/jev-context-linux-arm64": "0.1.0",
+    "@apixly/jev-context-linux-x64": "0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

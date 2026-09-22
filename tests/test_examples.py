@@ -29,3 +29,14 @@ def test_markdown_relative_links_exist():
             if "://" in target or target.startswith("#"):
                 continue
             assert (p.parent / target.split("#")[0]).exists(), (p, target)
+
+
+def test_schema_matches_documented_examples():
+    import jsonschema
+
+    schema = json.loads((ROOT / "schemas/analysis.schema.json").read_text())
+    jsonschema.Draft202012Validator.check_schema(schema)
+    for p in (ROOT / "examples").glob("*.json"):
+        data = json.loads(p.read_text())
+        if isinstance(data, dict) and "mode" in data:
+            jsonschema.validate(data, schema)

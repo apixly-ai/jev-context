@@ -1,29 +1,97 @@
-# 中文使用说明
+# 安装、运行与结果解读
 
-需要 Linux/macOS、Python 3.10+；代码搜索还需要 `rg`。安装 `code` extra 可解析
-JS/TS/Go，Python 使用标准库 AST。原生 Windows 暂不支持，可使用 WSL。
+## 推荐：npm CLI
+
+需要 Node.js 22+，支持 macOS / Linux；Windows 使用 WSL。
+平台包包含 Python 运行时和代码解析器，无需自己配置 Python 环境。
+
+```sh
+npm install -g @apixly/jev-context
+jev-context doctor
+```
+
+固定版本：`npm install -g @apixly/jev-context@0.1.0`。
+项目内安装：`npm install @apixly/jev-context`，使用 `npx jev-context` 运行。
+不要使用 `--omit=optional`，对应平台的二进制通过 optional dependencies 安装。
+安装不会执行 postinstall 脚本，也不会自动改写 AI 配置。
+
+也可以安装 GitHub Release 中的相同 npm 包：
+
+```sh
+npm install -g https://github.com/apixly-ai/jev-context/releases/download/v0.1.0/apixly-jev-context-0.1.0.tgz
+```
+
+## 配置 key
+
+```sh
+export TYPESAFE_API_KEY='your-key'
+jev-context doctor --live
+```
+
+单独 `doctor` 不联网推理；`--live` 会执行一次小额真实测试。
+避免在历史命令里存放 key 时，可用自己创建的密钥文件：
+
+```sh
+export TYPESAFE_API_KEY_FILE="$HOME/.config/jev-context/api-key"
+```
+
+通过密钥管理器或编辑器写入文件，设置为仅自己可读的 0600 权限；不能是符号链接。
+不要把 key 放入 Git、聊天或模型指令。默认读取上述路径，也支持 `XDG_CONFIG_HOME`。
+
+## 在任意目录尝试
+
+```sh
+jev-context query --input - --mode choose \
+  --task '选择当前仍未恢复的 DNS 故障' <<'JSON'
+[
+  {"id":"a","text":"DNS 已恢复，请求成功。"},
+  {"id":"b","text":"DNS 仍失败，无法建立连接。"}
+]
+JSON
+```
+
+预期选中 `b`。加 `--plan` 可只做本地规划。小例子用于了解接口，这类短输入通常
+不值得额外调用模型。[命令采集、代码搜索、网页与日志配方](recipes.md)。
+
+## 读懂结果
+
+| 字段 | 怎么处理 |
+|---|---|
+| `selected_ids` | 本次判断符合要求的记录 |
+| `review_ids` | 信息不足、失败或不确定，需要复核 |
+| `complete` | 为 `false` 时，判断或采集范围仍不完整 |
+| `archive` | 本地原文，可按 ID 读取 |
+| `receipt` | 本地判断与诊断信息 |
+| `telemetry.usage` | 已知输入/输出 token，结合 `usage_complete` 使用 |
+
+```sh
+jev-context list ARCHIVE_PATH
+jev-context read ARCHIVE_PATH --id SOURCE_ID
+```
+
+把占位符替换成返回的路径和 ID。原文文件权限为 0600，用于证据保留，不是推理缓存。
+
+退出码 `0` 表示完成或明确透传，`2` 表示部分结果/待复核，仍需解析 stdout；
+`1` 表示输入、配置或执行错误，`130` 表示中断。不要因中断就自动重跑采集命令，
+它可能已经执行过。[完整参数与契约](cli.md)。
+
+## Python 工作流继续使用原接口
+
+需要 Python 3.10+；源码安装的搜索功能需要另外安装 ripgrep。
 
 ```sh
 python -m venv .venv
 . .venv/bin/activate
-python -m pip install 'jev-context[code] @ git+https://github.com/JIA-ss/jev-context.git@v0.1.0'
-export TYPESAFE_API_KEY='你自己的密钥'
-jev-context doctor
+python -m pip install 'jev-context[code] @ git+https://github.com/apixly-ai/jev-context.git@v0.1.0'
 ```
 
-`doctor` 默认不联网；`--live` 才会发出一次小额计费测试。也可用
-`TYPESAFE_API_KEY_FILE` 指向自己拥有、权限 0600 的普通文件。不要把密钥放进参数或 Git。
+也可使用 Release wheel。目前不假设已经发布到 PyPI。[Python 接入示例](agents.md#python-workflows)。
 
-原始结果由程序采集和处理，主模型只读取精简结果。`complete=true` 只表示本次输入的
-判定已完成，不证明现实世界事实或执行权限；`review_ids`/`NEEDS_CONTEXT` 需要补充
-对应证据。不要重复运行可能已经产生副作用的采集命令。
+## 常见问题
 
-```sh
-jev-context query --input examples/records.json --task '找出当前建连失败' --analysis examples/triage.json
-jev-context code-search 'session|state' --root src --task '寻找状态持久化实现'
-jev-context triage --input examples/events.jsonl --task '找出当前建连失败' --analysis examples/triage.json
-```
-
-支持自动合批、连接复用，推理并发上限 30，没有结果缓存。原文保存在本地私有
-archive/receipt 中，按 ID 回查。可复现 benchmark、完整命令、调用 skill 与限制
-见本仓库英文文档及双语 README。当前提供 GitHub Release 安装包，不假定已上架 PyPI。
+- 找不到命令：重开终端，检查 npm 全局 bin 是否在 PATH 中。
+- 缺平台包：不要省略 optional dependencies，核对系统和架构。
+- 没读到 key：检查实际运行 AI 工具的进程环境，而不只是交互终端。
+- 没有搜索结果：检查 `doctor`、ignore 规则和关键词；源码安装需要 rg。
+- 退出码 2：查看缺失上下文、`review_ids` 和采集边界，不当作空结果成功。
+- 简单任务变慢：回到原生工具，不要为精确查询增加语义推理。

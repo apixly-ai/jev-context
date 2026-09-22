@@ -13,3 +13,7 @@ workload becomes faster or cheaper.
 - [Benchmarks and claims](benchmarks.md)
 - [Development and releases](development.md)
 - [中文使用说明](getting-started.zh-CN.md)
+
+- [Task recipes](recipes.md)
+- [npm/native distribution](distribution.md)
+- [README design research](readme-design.md)

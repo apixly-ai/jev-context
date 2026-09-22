@@ -1,11 +1,12 @@
-"""Verify that a release tag matches package metadata before uploading artifacts."""
+"""Keep Git tags, Python metadata and npm versions aligned."""
 
+import json
 import re
 import sys
 from pathlib import Path
 
-text = Path("pyproject.toml").read_text()
-version = re.search(r'^version = "([^"]+)"', text, re.M).group(1)
-if sys.argv[1] != "v" + version:
-    raise SystemExit("Tag does not match package version")
+version = re.search(r'^version = "([^"]+)"', Path("pyproject.toml").read_text(), re.M).group(1)
+package = json.loads(Path("package.json").read_text())
+if sys.argv[1] != "v" + version or package["version"] != version:
+    raise SystemExit("Tag, npm and Python versions must match")
 print("Release version verified:", version)
