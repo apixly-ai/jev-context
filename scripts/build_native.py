@@ -1,6 +1,7 @@
 """Build a platform npm tarball containing the interpreter and runtime dependencies."""
 
 import hashlib
+import http.client
 import io
 import json
 import platform
@@ -8,10 +9,23 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import time
 import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def download(url):
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(url, timeout=60) as response:
+                return response.read()
+        except (OSError, http.client.IncompleteRead):
+            if attempt == 2:
+                raise
+            time.sleep(attempt + 1)
+    raise RuntimeError("Download failed")
 
 
 def main():
@@ -30,7 +44,7 @@ def main():
         "--clean",
         "--onedir",
         "--name",
-        "jev-context",
+        "jev-filter",
         "--distpath",
         str(out),
         "--workpath",
@@ -38,7 +52,7 @@ def main():
         "--specpath",
         str(ROOT / "build"),
         "--copy-metadata",
-        "jev-context",
+        "jev-filter",
         "--collect-all",
         "jev_context",
         "--collect-all",
@@ -62,11 +76,11 @@ def main():
     if stage.exists():
         shutil.rmtree(stage)
     stage.mkdir(parents=True)
-    shutil.copytree(out / "jev-context", stage / "bin")
+    shutil.copytree(out / "jev-filter", stage / "bin")
     metadata = {
-        "name": f"@apixly/jev-context-{target}",
+        "name": f"@apixly/jev-filter-{target}",
         "version": package["version"],
-        "description": "Platform runtime for Jev Context",
+        "description": "Platform runtime for Jev Filter",
         "os": [os_name],
         "cpu": [arch],
         "license": "MIT",
@@ -103,11 +117,9 @@ def main():
     python_license = (
         f"https://raw.githubusercontent.com/python/cpython/v{platform.python_version()}/LICENSE"
     )
-    with urllib.request.urlopen(python_license, timeout=30) as response:
-        (licenses / "PYTHON-LICENSE.txt").write_bytes(response.read())
+    (licenses / "PYTHON-LICENSE.txt").write_bytes(download(python_license))
     rg = json.loads((ROOT / "npm/ripgrep.json").read_text())[target]
-    with urllib.request.urlopen(rg["url"], timeout=60) as response:
-        archive = response.read()
+    archive = download(rg["url"])
     if hashlib.sha256(archive).hexdigest() != rg["sha256"]:
         raise ValueError("ripgrep release digest mismatch")
     found = False

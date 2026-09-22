@@ -1,9 +1,9 @@
 [build-system]
-requires = ["hatchling==1.27.0"]
+requires = ["hatchling==1.32.4"]
 build-backend = "hatchling.build"
 
 [project]
-name = "jev-context"
+name = "jev-filter"
 version = "0.1.0"
 description = "Evidence-preserving semantic tools for AI agents, powered by Jev"
 readme = "README.md"
@@ -16,24 +16,25 @@ dependencies = ["httpx>=0.28.1,<0.29"]
 
 [project.optional-dependencies]
 code = ["tree-sitter>=0.25.2,<0.27", "tree-sitter-javascript>=0.25,<0.26", "tree-sitter-typescript>=0.23.2,<0.24", "tree-sitter-go>=0.25,<0.26"]
-dev = ["pytest>=8.3,<10", "pytest-cov>=6,<8", "ruff>=0.11,<1", "build>=1.2,<2", "twine>=6,<7", "pip-audit>=2.8,<3", "jsonschema>=4.23,<5", "pyyaml>=6,<7"]
+dev = ["pytest>=8.3,<10", "pytest-cov>=6,<8", "ruff>=0.11,<1", "build>=1.2,<2", "twine>=7,<8", "pip-audit>=2.8,<3", "jsonschema>=4.23,<5", "pyyaml>=6,<7"]
 docs = ["matplotlib>=3.10,<4", "markdown>=3.7,<4"]
 bundle = ["pyinstaller>=6.16,<7"]
 browser-test = ["playwright>=1.51,<2"]
 
 [project.scripts]
+jev-filter = "jev_context.cli:entrypoint"
 jev-context = "jev_context.cli:entrypoint"
 
 [project.urls]
-Homepage = "https://github.com/apixly-ai/jev-context"
-Documentation = "https://github.com/apixly-ai/jev-context/tree/main/docs"
-Issues = "https://github.com/apixly-ai/jev-context/issues"
-Changelog = "https://github.com/apixly-ai/jev-context/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/apixly-ai/jev-filter"
+Documentation = "https://github.com/apixly-ai/jev-filter/tree/main/docs"
+Issues = "https://github.com/apixly-ai/jev-filter/issues"
+Changelog = "https://github.com/apixly-ai/jev-filter/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/jev_context"]
+packages = ["src/jev_context", "src/jev_filter"]
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests", "docs", "examples", "skills", "benchmarks", "schemas", "scripts", "npm", "package.json", "pyproject.toml", "README.md", "README.zh-CN.md", "LICENSE", "NOTICE", "CHANGELOG.md"]
+include = ["src", "tests", "docs", "examples", "skills", "benchmarks", "schemas", "scripts", "npm", "package.json", "pyproject.toml", "*.md", "LICENSE", "NOTICE", "CHANGELOG.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

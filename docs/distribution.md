@@ -1,6 +1,8 @@
 # npm and native distribution
 
-The primary installation is `npm install -g @apixly/jev-context`. Python users keep
+[简体中文](distribution.zh-CN.md)
+
+The primary installation is `npm install -g @apixly/jev-filter`. Python users keep
 the release wheel/library interface. Both call the same semantic core.
 
 ## Design

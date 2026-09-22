@@ -13,7 +13,7 @@ of a 0.x API (minor releases may make documented breaking changes).
 - Optional Python-packaged JS/TS/Go grammar support; Python AST support is built in.
 - English/Chinese documentation, agent skill, reproducible benchmarks and release CI.
 
-[0.1.0]: https://github.com/JIA-ss/jev-context/releases
+[0.1.0]: https://github.com/JIA-ss/jev-filter/releases
 
 - Native npm distribution for macOS and Linux x64/ARM64, including interpreter, parsers and pinned ripgrep.
 - Visual bilingual README, data-derived charts, runnable recipes and agent integration instructions.

@@ -25,8 +25,8 @@ with tempfile.TemporaryDirectory() as temp:
             "--omit=optional",
             "--no-audit",
             "--no-fund",
-            str(root / f"dist/apixly-jev-context-{version}.tgz"),
-            str(root / f"dist/apixly-jev-context-{os_name}-{arch}-{version}.tgz"),
+            str(root / f"dist/apixly-jev-filter-{version}.tgz"),
+            str(root / f"dist/apixly-jev-filter-{os_name}-{arch}-{version}.tgz"),
         ],
         check=True,
     )
@@ -34,7 +34,7 @@ with tempfile.TemporaryDirectory() as temp:
     node_bin.mkdir()
     (node_bin / "node").symlink_to(shutil.which("node"))
     env = {**os.environ, "PATH": str(node_bin), "PYTHONPATH": "/nonexistent"}
-    cli = base / "node_modules/.bin/jev-context"
+    cli = base / "node_modules/.bin/jev-filter"
     result = subprocess.run(
         [str(cli), "doctor"], env=env, capture_output=True, text=True, check=True
     )

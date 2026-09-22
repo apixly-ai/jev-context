@@ -1,6 +1,8 @@
 # Connect your agent
 
-Jev Context is a CLI and Python library. A shell-capable agent can use it immediately;
+[简体中文](agents.zh-CN.md)
+
+Jev Filter is a CLI and Python library. A shell-capable agent can use it immediately;
 no MCP server or extra autonomous agent is required. The key design rule is:
 **collect → judge → compact packet inside the program**.
 
@@ -10,25 +12,25 @@ After the [npm installation](getting-started.md), choose your agent:
 
 | Agent | Skill directory | Instruction file |
 |---|---|---|
-| Codex | `~/.codex/skills/jev-context/` | Project `AGENTS.md` |
-| Claude Code | `~/.claude/skills/jev-context/` | Project `CLAUDE.md` |
+| Codex | `~/.codex/skills/jev-filter/` | Project `AGENTS.md` |
+| Claude Code | `~/.claude/skills/jev-filter/` | Project `CLAUDE.md` |
 | Another harness | Its supported skill directory | Its system/tool instructions |
 
 ```sh
 # Codex; use ~/.claude/skills for Claude Code.
 mkdir -p ~/.codex/skills
-cp -R "$(npm root -g)/@apixly/jev-context/skills/jev-context" ~/.codex/skills/
+cp -R "$(npm root -g)/@apixly/jev-filter/skills/jev-filter" ~/.codex/skills/
 ```
 
 If a directory already exists, review and merge your local customizations first.
-From a repository checkout, the same skill is `skills/jev-context/`. Restart or reload
-skills if your harness requires it. Verify with `jev-context doctor` in the environment
+From a repository checkout, the same skill is `skills/jev-filter/`. Restart or reload
+skills if your harness requires it. Verify with `jev-filter doctor` in the environment
 where the agent executes commands, not only your interactive terminal.
 
 ## Paste this routing guidance
 
 ```text
-Use jev-context for many records that need repetitive semantic judgment
+Use jev-filter for many records that need repetitive semantic judgment
 against clear criteria. Prefer native tools for exact IDs, paths, selectors,
 calculations, short outputs and latency-sensitive steps.
 
@@ -65,7 +67,7 @@ integration. The [context contract](context-contract.md) explains each field.
 
 1. Parse stdout even when the process exits **2**: partial results are useful.
 2. Use `selected_ids`; hold `review_ids` for inspection. `complete=false` needs attention.
-3. Read an original with `jev-context read ARCHIVE_PATH --id SOURCE_ID`.
+3. Read an original with `jev-filter read ARCHIVE_PATH --id SOURCE_ID`.
 4. Keep identity, freshness, authorization, idempotency and execution verification in
    your existing program. Jev does not replace these controls.
 
@@ -78,7 +80,7 @@ Keep Python if your existing program already uses it. Install `.[code]` or a rel
 wheel. This typed adapter packs compatible requests and restores original IDs:
 
 ```python
-from jev_context.batch import run
+from jev_filter.batch import run
 
 result = run([
     {
@@ -108,6 +110,6 @@ for row in result["results"]:
 ```
 
 For language-independent integration, pass the same JSON array to
-`jev-context batch --input -`. The collector keeps raw state internal and receives
+`jev-filter batch --input -`. The collector keeps raw state internal and receives
 only typed results/usage. An existing workflow should call this adapter once per
-batch, not launch a process per record. [First-user acceptance](benchmarks.md#first-user-integration-acceptance--首个用户的集成验收).
+batch, not launch a process per record. [First-user acceptance](benchmarks.md#first-user-integration-acceptance).

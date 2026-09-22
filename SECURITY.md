@@ -3,7 +3,7 @@
 ## Reporting
 
 Use GitHub's **Report a vulnerability** button at
-https://github.com/JIA-ss/jev-context/security/advisories/new . Do not put sensitive
+https://github.com/apixly-ai/jev-filter/security/advisories/new . Do not put sensitive
 proofs or credentials in public issues. Reports are handled on a best-effort basis;
 there is no contractual response-time guarantee.
 

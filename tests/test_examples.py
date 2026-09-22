@@ -40,3 +40,72 @@ def test_schema_matches_documented_examples():
         data = json.loads(p.read_text())
         if isinstance(data, dict) and "mode" in data:
             jsonschema.validate(data, schema)
+
+
+def test_new_namespace_preserves_legacy_workflow_api():
+    from jev_context.batch import run as legacy
+    from jev_filter.batch import run as current
+
+    assert current is legacy
+
+
+def test_english_guides_do_not_mix_translated_body_text():
+    import re
+
+    for p in (ROOT / "docs").glob("*.md"):
+        if ".zh-CN." in p.name:
+            continue
+        for line in p.read_text().splitlines():
+            if re.search(r"[\u4e00-\u9fff]", line):
+                assert "]( " not in line and ("简体中文" in line or "中文使用说明" in line), (
+                    p,
+                    line,
+                )
+
+
+def test_chinese_guides_keep_localized_links():
+    import re
+
+    for p in [ROOT / "README.zh-CN.md", *(ROOT / "docs").glob("*.zh-CN.md")]:
+        for label, target in re.findall(r"\[([^\]]+)\]\(([^)]+\.md)(?:#[^)]*)?\)", p.read_text()):
+            if "://" in target or label == "English":
+                continue
+            if target.endswith("CHANGELOG.md"):
+                continue
+            localized = p.parent / target.replace(".md", ".zh-CN.md")
+            assert not localized.exists(), (p, target)
+
+
+def test_agent_quickstart_contracts_plan_without_missing_context(tmp_path):
+    import re
+    import subprocess
+    import sys
+
+    for locale in ("", ".zh-CN"):
+        text = (ROOT / f"docs/agent-quickstart{locale}.md").read_text()
+        spec = json.loads(re.search(r"```json\n(.*?)\n```", text, re.S)[1])
+        records = json.loads(re.search(r"<<'JSON'\n(.*?)\nJSON", text, re.S)[1])
+        config = tmp_path / "analysis.json"
+        inputs = tmp_path / "records.json"
+        config.write_text(json.dumps(spec))
+        inputs.write_text(json.dumps(records))
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "jev_filter",
+                "query",
+                "--input",
+                str(inputs),
+                "--analysis",
+                str(config),
+                "--task",
+                "Choose Beta JSON",
+                "--plan",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        planned = json.loads(result.stdout)
+        assert planned["requests"] == 1 and not planned["deferred"]

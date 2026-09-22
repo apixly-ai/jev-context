@@ -8,7 +8,7 @@ function platformPackage(platform = process.platform, arch = process.arch) {
   if (!['linux', 'darwin'].includes(platform) || !['x64', 'arm64'].includes(arch)) {
     throw new Error(`Unsupported platform: ${platform}/${arch}. See the Python installation guide.`);
   }
-  return `@apixly/jev-context-${platform}-${arch}`;
+  return `@apixly/jev-filter-${platform}-${arch}`;
 }
 
 function launch(args, deps = {}) {
@@ -16,7 +16,7 @@ function launch(args, deps = {}) {
   let manifest;
   try { manifest = (deps.resolve || require.resolve)(`${name}/package.json`); }
   catch { throw new Error(`Missing ${name}. Reinstall without --omit=optional; platform binaries are optional dependencies.`); }
-  const binary = path.join(path.dirname(manifest), 'bin', 'jev-context');
+  const binary = path.join(path.dirname(manifest), 'bin', 'jev-filter');
   const owner = deps.process || process;
   const child = (deps.spawn || spawn)(binary, args, { stdio: 'inherit', shell: false });
   const handlers = new Map();
@@ -30,7 +30,7 @@ function launch(args, deps = {}) {
   };
   child.on('error', error => {
     cleanup();
-    console.error(`jev-context: native executable could not start (${error.code || 'unknown'}). Reinstall the package.`);
+    console.error(`jev-filter: native executable could not start (${error.code || 'unknown'}). Reinstall the package.`);
     owner.exitCode = 1;
   });
   child.on('exit', (code, signal) => {
@@ -43,5 +43,5 @@ function launch(args, deps = {}) {
 module.exports = { platformPackage, launch };
 if (require.main === module) {
   try { launch(process.argv.slice(2)); }
-  catch (error) { console.error(`jev-context: ${error.message}`); process.exitCode = 1; }
+  catch (error) { console.error(`jev-filter: ${error.message}`); process.exitCode = 1; }
 }

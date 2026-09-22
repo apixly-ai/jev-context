@@ -1,10 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { platformPackage, launch } = require('../bin/jev-context.cjs');
+const { platformPackage, launch } = require('../bin/jev-filter.cjs');
 
 test('selects only supported native platforms', () => {
-  assert.equal(platformPackage('darwin', 'arm64'), '@apixly/jev-context-darwin-arm64');
-  assert.equal(platformPackage('linux', 'x64'), '@apixly/jev-context-linux-x64');
+  assert.equal(platformPackage('darwin', 'arm64'), '@apixly/jev-filter-darwin-arm64');
+  assert.equal(platformPackage('linux', 'x64'), '@apixly/jev-filter-linux-x64');
   assert.throws(() => platformPackage('win32', 'x64'), /WSL/);
   assert.throws(() => platformPackage('linux', 'ia32'), /Unsupported/);
 });
@@ -19,7 +19,7 @@ test('passes arguments and inherited stdio without a shell', () => {
     process: { on() {}, removeListener() {}, exitCode: undefined },
   });
   assert.equal(result, child);
-  assert.deepEqual(observed, ['/fixture/native/bin/jev-context', ['exec', '--', 'printf', 'a b'], { stdio: 'inherit', shell: false }]);
+  assert.deepEqual(observed, ['/fixture/native/bin/jev-filter', ['exec', '--', 'printf', 'a b'], { stdio: 'inherit', shell: false }]);
 });
 
 test('missing optional binary gives an actionable error', () => {

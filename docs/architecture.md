@@ -1,5 +1,7 @@
 # Architecture
 
+[简体中文](architecture.zh-CN.md)
+
 ```mermaid
 flowchart LR
   A[Caller goal and context] --> B[Program collector]

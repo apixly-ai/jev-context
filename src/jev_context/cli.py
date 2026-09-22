@@ -135,7 +135,7 @@ def main():
     from . import __version__
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--version", action="version", version="jev-context " + __version__)
+    parser.add_argument("--version", action="version", version="jev-filter " + __version__)
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("search", "query", "exec"):
         cmd = commands.add_parser(name)

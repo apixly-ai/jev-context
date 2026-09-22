@@ -1,33 +1,48 @@
 <p align="center">
-  <img src="docs/assets/hero.svg" alt="Jev Context: capture tool output, judge with your context, return evidence to the agent" width="100%">
+  <img src="docs/assets/hero.svg" alt="Jev Filter: capture tool output, judge with your context, return evidence to the agent" width="100%">
 </p>
 
 <p align="center">
-  <a href="README.zh-CN.md">简体中文</a> · <a href="#quick-start">Quick start</a> · <a href="#connect-your-agent">Agent setup</a> · <a href="docs/benchmarks.md">Benchmarks</a> · <a href="https://github.com/apixly-ai/jev-context/releases">Releases</a>
+  <a href="README.zh-CN.md">简体中文</a> · <a href="#quick-start">Quick start</a> · <a href="docs/agent-quickstart.md">Agent setup</a> · <a href="docs/benchmarks.md">Benchmarks</a> · <a href="https://apixly-ai.github.io/jev-filter/">Documentation</a> · <a href="https://github.com/apixly-ai/jev-filter/releases">Releases</a>
 </p>
 <p align="center">
-  <a href="https://github.com/apixly-ai/jev-context/actions/workflows/ci.yml"><img src="https://github.com/apixly-ai/jev-context/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/apixly-ai/jev-context/releases"><img src="https://img.shields.io/github/v/release/apixly-ai/jev-context?color=12846b" alt="Release"></a>
+  <a href="https://github.com/apixly-ai/jev-filter/actions/workflows/ci.yml"><img src="https://github.com/apixly-ai/jev-filter/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/apixly-ai/jev-filter/releases"><img src="https://img.shields.io/github/v/release/apixly-ai/jev-filter?color=12846b" alt="Release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-7958d6" alt="MIT license"></a>
 </p>
 
 **A semantic filter between your tools and your AI agent.** Capture command output, search results, browser controls or logs inside the CLI. Let Jev judge them using the agent's task and context. Return relevant evidence and unresolved IDs instead of an entire raw dump.
 
-## Why Jev Context?
+## Why Jev Filter?
 
-- **Send less context to the primary agent.** Filter before raw output enters the conversation; recover originals by ID. Historical workflows returned **88–97% less context**. [Evidence and trade-offs →](docs/benchmarks.md#historical-prototype-primary-agent-workflow-comparison)
+- **Send less context to the primary agent.** Filter before raw output enters the conversation; recover originals by ID. The fresh 48-run benchmark returned **88–97% less tool context**. [Evidence and trade-offs →](docs/benchmarks.md#whole-operation-benchmark-48-agent-runs)
 - **Spend less on repeated Jev input.** Automatic packing plus up to 30 concurrent requests. The public benchmark used **56.5% fewer input tokens** and ran **32.4% faster** than single-record parallel calls. [Reproduce →](docs/benchmarks.md#public-package-measured-2026-09-22)
 - **Keep decisions inspectable.** The agent controls the context, questions and output; missing facts remain `REVIEW`. **8/8 exact fixture runs**, plus three installed workflow acceptance checks. [Public data](benchmarks/results/2026-09-22-live.json) · [Integration evidence](benchmarks/results/2026-09-22-migration.json)
 
 Use it for **many records + repeated semantic judgment + clear criteria**. Use native tools for exact paths, IDs, selectors, calculations and short results. Keep open-ended reasoning and writing in your primary model.
 
-## Measured, not assumed
+## Benchmarks
 
-![Measured Jev execution: batching reduces repeated input by 56.5%; batch plus parallel is 32.4% faster than single-record parallel](docs/assets/batch-benchmark.png)
+![Whole-operation gains and regressions across two primary models and four scenarios](docs/assets/operations.png)
 
-96 synthetic records, two predicates per record, two runs per arm. All eight runs matched the expected selections. These numbers measure the **Jev stage**, not an entire agent task. [Raw results](benchmarks/results/2026-09-22-live.json) · [Method and rerun command](docs/benchmarks.md)
+**48 real agent runs:** Astra and Luna, four scenarios, raw/filtered arms, three repetitions.
+All runs selected the expected IDs. Four raw runs requested additional review; no filtered run did.
+Returned tool context fell **88–97%**. Cold API-equivalent cost ranged from **20.8% lower to 0.6% higher**;
+latency improved in some cells and regressed in others. These are small synthetic tests, not production guarantees.
 
-**What about total cost?** Historical primary-agent A/Bs estimated 4–25% lower cold API-equivalent cost, but all three workflows were 1.5–10.2% slower. The standalone migration also had a small-batch slowdown with unchanged token usage. We retain those results in the report. Smaller context is an opportunity to save—not a guarantee.
+[Method and all results](docs/benchmarks.md) · [Per-run JSON](benchmarks/results/2026-09-23-operations.json) · [CSV](benchmarks/results/2026-09-23-operations.csv) · [Decision evidence](benchmarks/results/2026-09-23-decisions.json)
+
+<details>
+<summary><strong>Why automatic batching and concurrency matter</strong></summary>
+
+![Jev batching reduces repeated input by 56.5%](docs/assets/batch-benchmark.png)
+
+96 synthetic records × two predicates, two runs per arm. Batching used **56.5% fewer Jev input tokens**;
+batch + parallel was **32.4% faster than single-record parallel**. This measures the Jev stage, not a whole agent task.
+[Raw results](benchmarks/results/2026-09-22-live.json) · [Reproduce](docs/benchmarks.md#public-package-measured-2026-09-22)
+
+</details>
+
 
 ## Quick start
 
@@ -36,8 +51,8 @@ Use it for **many records + repeated semantic judgment + clear criteria**. Use n
 Install from npm:
 
 ```sh
-npm install -g @apixly/jev-context
-jev-context doctor
+npm install -g @apixly/jev-filter
+jev-filter doctor
 ```
 
 
@@ -46,7 +61,7 @@ Set your key, then try a self-contained example from **any directory**:
 ```sh
 export TYPESAFE_API_KEY='your-key'
 
-jev-context query --input - --mode choose \
+jev-filter query --input - --mode choose \
   --task 'Choose the record showing a CURRENT unresolved DNS failure' <<'JSON'
 [
   {"id":"a","text":"The previous DNS failure recovered; requests now succeed."},
@@ -65,7 +80,7 @@ Small examples teach the interface; native tools are usually better for inputs t
 
 ```sh
 # Run your trusted collector once; its full output stays inside the program.
-jev-context exec --task 'Find unresolved network failures' \
+jev-filter exec --task 'Find unresolved network failures' \
   --analysis analysis.json -- your-collector --json
 ```
 
@@ -79,7 +94,7 @@ The CLI works with any agent that can execute commands. It is not a separate age
 
 ```sh
 mkdir -p ~/.codex/skills
-cp -R "$(npm root -g)/@apixly/jev-context/skills/jev-context" ~/.codex/skills/
+cp -R "$(npm root -g)/@apixly/jev-filter/skills/jev-filter" ~/.codex/skills/
 ```
 
 For another agent, copy the same skill into its supported skill directory. [Claude Code and generic harness setup →](docs/agents.md)
@@ -87,7 +102,7 @@ For another agent, copy the same skill into its supported skill directory. [Clau
 **2. Give the agent this routing rule.**
 
 ```text
-Use jev-context when many records need a clear semantic judgment.
+Use jev-filter when many records need a clear semantic judgment.
 Pass the task, scope, exclusions, success criteria and sourced facts.
 Keep collection → analysis → compact output inside one tool call.
 Inspect unresolved IDs; do not repeat settled judgments or wrap an
@@ -111,7 +126,7 @@ existing Jev workflow again. Use native tools for exact or short work.
 
 ## Built for real use
 
-We use Jev Context in our own environment. Source annotation, Telegram maintenance planning and SRE routing retain their existing contracts and pass synthetic acceptance using real Jev calls. Private identities, credentials and production data are excluded from this repository.
+We use Jev Filter in our own environment. Source annotation, Telegram maintenance planning and SRE routing retain their existing contracts and pass synthetic acceptance using real Jev calls. Private identities, credentials and production data are excluded from this repository.
 
 - **No result cache.** Explicit context, bounded collection, retained failures and reported usage.
 - **Protected releases.** Required CI/security checks, immutable release tags, checksums and build provenance.
@@ -121,14 +136,14 @@ We use Jev Context in our own environment. Source annotation, Telegram maintenan
 ## Contribute
 
 ```sh
-git clone https://github.com/apixly-ai/jev-context.git
-cd jev-context
+git clone https://github.com/apixly-ai/jev-filter.git
+cd jev-filter
 python -m venv .venv && . .venv/bin/activate
 python -m pip install -e '.[code,dev]'
 sh scripts/check.sh
 npm test
 ```
 
-[Contributing](CONTRIBUTING.md) · [Development and releases](docs/development.md) · [Governance](GOVERNANCE.md) · [Changelog](CHANGELOG.md) · [Report a bug](https://github.com/apixly-ai/jev-context/issues/new/choose)
+[Contributing](CONTRIBUTING.md) · [Development and releases](docs/development.md) · [Governance](GOVERNANCE.md) · [Changelog](CHANGELOG.md) · [Report a bug](https://github.com/apixly-ai/jev-filter/issues/new/choose)
 
 Maintained by **Apixly / JIA-ss** · [MIT](LICENSE) · Independent of TypeSafe.

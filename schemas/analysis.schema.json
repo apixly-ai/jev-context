@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Jev Context analysis contract",
+  "title": "Jev Filter analysis contract",
   "description": "Editor hints; runtime validation also enforces cross-field constraints.",
   "type": "object",
   "additionalProperties": false,

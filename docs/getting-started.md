@@ -1,43 +1,46 @@
 # Install, run, read the result
 
+[简体中文](getting-started.zh-CN.md)
+
 ## Recommended: npm CLI
 
 Node.js 22+ on macOS or Linux; Windows users can use WSL.
 The platform package includes the Python runtime and code parsers.
 
 ```sh
-npm install -g @apixly/jev-context
-jev-context doctor
+npm install -g @apixly/jev-filter
+jev-filter doctor
 ```
 
-Pin a version with `npm install -g @apixly/jev-context@0.1.0`.
-For a project-local dependency, use `npm install @apixly/jev-context` and invoke
-`npx jev-context`. Avoid `--omit=optional`: the correct platform binary is an optional
+Pin a version with `npm install -g @apixly/jev-filter@0.1.0`.
+For a project-local dependency, use `npm install @apixly/jev-filter` and invoke
+`npx jev-filter`. Avoid `--omit=optional`: the correct platform binary is an optional
 dependency. Installation does not run a postinstall script or configure your agent.
 
 GitHub release fallback (the same npm package):
 
 ```sh
-npm install -g https://github.com/apixly-ai/jev-context/releases/download/v0.1.0/apixly-jev-context-0.1.0.tgz
+npm install -g https://github.com/apixly-ai/jev-filter/releases/download/v0.1.0/apixly-jev-filter-0.1.0.tgz
 ```
 
 ## Configure your key
 
 ```sh
 export TYPESAFE_API_KEY='your-key'
-jev-context doctor --live
+jev-filter doctor --live
 ```
 
 `doctor` alone is offline; `--live` makes one small billable request. To avoid storing
 a key in shell history, use an existing owner-only file instead:
 
 ```sh
-export TYPESAFE_API_KEY_FILE="$HOME/.config/jev-context/api-key"
+export TYPESAFE_API_KEY_FILE="$HOME/.config/jev-filter/api-key"
 # Create the file using your preferred secret manager/editor; set mode 0600.
 ```
 
-The default is `$XDG_CONFIG_HOME/jev-context/api-key`, or
-`~/.config/jev-context/api-key`. The file must be a regular file owned by you, mode
+For compatibility with earlier local installs, the implicit default remains
+`$XDG_CONFIG_HOME/jev-context/api-key` or `~/.config/jev-context/api-key`.
+The explicit `TYPESAFE_API_KEY_FILE` setting above selects the new directory. The file must be a regular file owned by you, mode
 0600 (a symlink is rejected). Never put the key in Git or agent prompts.
 
 ## Try one complete example
@@ -45,7 +48,7 @@ The default is `$XDG_CONFIG_HOME/jev-context/api-key`, or
 This works outside a checkout:
 
 ```sh
-jev-context query --input - --mode choose \
+jev-filter query --input - --mode choose \
   --task 'Choose the CURRENT unresolved DNS failure' <<'JSON'
 [
   {"id":"a","text":"DNS recovered; requests now succeed."},
@@ -70,8 +73,8 @@ browser controls and correlated logs. Small examples teach usage, not economic b
 | `telemetry.usage` | Known input/output tokens; check `usage_complete` |
 
 ```sh
-jev-context list ARCHIVE_PATH
-jev-context read ARCHIVE_PATH --id SOURCE_ID
+jev-filter list ARCHIVE_PATH
+jev-filter read ARCHIVE_PATH --id SOURCE_ID
 ```
 
 Replace the placeholders with the archive path and record ID returned by your call.
@@ -95,7 +98,7 @@ install ripgrep separately for source-based search.
 ```sh
 python -m venv .venv
 . .venv/bin/activate
-python -m pip install 'jev-context[code] @ git+https://github.com/apixly-ai/jev-context.git@v0.1.0'
+python -m pip install 'jev-filter[code] @ git+https://github.com/apixly-ai/jev-filter.git@v0.1.0'
 ```
 
 The wheel in GitHub Releases is also supported. No PyPI publication is assumed.

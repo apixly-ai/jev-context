@@ -20,8 +20,8 @@ for name in package["files"]:
     else:
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
-base = f"https://github.com/apixly-ai/jev-context/blob/v{package['version']}/"
-raw = f"https://raw.githubusercontent.com/apixly-ai/jev-context/v{package['version']}/"
+base = f"https://github.com/apixly-ai/jev-filter/blob/v{package['version']}/"
+raw = f"https://raw.githubusercontent.com/apixly-ai/jev-filter/v{package['version']}/"
 for name in ("README.md", "README.zh-CN.md"):
     p = stage / name
     text = p.read_text()

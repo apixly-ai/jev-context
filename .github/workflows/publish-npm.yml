@@ -17,8 +17,8 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24'
           registry-url: https://registry.npmjs.org
@@ -32,12 +32,12 @@ jobs:
           gh release download "$TAG" --pattern '*.tgz' --pattern SHA256SUMS --dir artifacts
           cd artifacts
           sha256sum --check --ignore-missing SHA256SUMS
-          gh attestation verify "apixly-jev-context-${TAG#v}.tgz" --repo "$GITHUB_REPOSITORY"
+          gh attestation verify "apixly-jev-filter-${TAG#v}.tgz" --repo "$GITHUB_REPOSITORY"
       - name: Publish through configured npm trusted publisher
         env:
           TAG: ${{ inputs.tag }}
         run: |
-          for package in artifacts/apixly-jev-context-darwin-*.tgz artifacts/apixly-jev-context-linux-*.tgz; do
+          for package in artifacts/apixly-jev-filter-darwin-*.tgz artifacts/apixly-jev-filter-linux-*.tgz; do
             npm publish "$package" --access public --provenance
           done
-          npm publish "artifacts/apixly-jev-context-${TAG#v}.tgz" --access public --provenance
+          npm publish "artifacts/apixly-jev-filter-${TAG#v}.tgz" --access public --provenance

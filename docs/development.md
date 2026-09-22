@@ -1,5 +1,7 @@
 # Development, releases and reproducibility
 
+[简体中文](development.zh-CN.md)
+
 ```sh
 python -m venv .venv
 . .venv/bin/activate

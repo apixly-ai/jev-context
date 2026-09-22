@@ -1,5 +1,7 @@
 # README design notes
 
+[简体中文](readme-design.zh-CN.md)
+
 The README answers five questions in order: what is it, why should I use it, what
 proves that, how do I try it, and how do I connect it to my agent?
 
