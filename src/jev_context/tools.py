@@ -509,7 +509,16 @@ def main(argv=None):
 
     result["analysis_receipt"] = result["receipt"]
     result["receipt"] = save_archive({"records": records, "result": result})
-    print(analysis.render(result, spec))
+    rendered = analysis.render(result, spec)
+    from .stats import record
+
+    record(
+        args.command,
+        json.dumps(records, ensure_ascii=False, separators=(",", ":")),
+        rendered + "\n",
+        result,
+    )
+    print(rendered)
     return 0 if result["ok"] and result["complete"] else 2
 
 

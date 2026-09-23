@@ -33,13 +33,34 @@ with tempfile.TemporaryDirectory() as temp:
     node_bin = base / "only-node"
     node_bin.mkdir()
     (node_bin / "node").symlink_to(shutil.which("node"))
-    env = {**os.environ, "PATH": str(node_bin), "PYTHONPATH": "/nonexistent"}
+    env = {
+        **os.environ,
+        "PATH": str(node_bin),
+        "PYTHONPATH": "/nonexistent",
+        "JEV_STATS_DIR": str(base / "stats"),
+    }
     cli = base / "node_modules/.bin/jev-filter"
     result = subprocess.run(
         [str(cli), "doctor"], env=env, capture_output=True, text=True, check=True
     )
     doctor = json.loads(result.stdout)
     assert doctor["version"] == version and doctor["tree_sitter"] and doctor["ripgrep"], doctor
+    subprocess.run(
+        [
+            str(cli),
+            "stats",
+            "configure",
+            "--model",
+            "fixture",
+            "--counter",
+            "bytes",
+            "--input-rate",
+            "1",
+        ],
+        env=env,
+        capture_output=True,
+        check=True,
+    )
     contract = base / "contract.json"
     contract.write_text(json.dumps({"mode": "passthrough"}))
     fixture = base / "code"
@@ -67,6 +88,18 @@ with tempfile.TemporaryDirectory() as temp:
     packet = json.loads(result.stdout)
     assert packet["ok"] and packet["telemetry"]["requests"] == 0, packet
     assert "example" in result.stdout, result.stdout
+    telemetry = subprocess.run(
+        [str(cli), "stats", "report"], env=env, capture_output=True, text=True, check=True
+    )
+    assert json.loads(telemetry.stdout)["summary"]["runs"] == 1
+    dashboard = base / "dashboard.html"
+    subprocess.run(
+        [str(cli), "stats", "dashboard", "--html", str(dashboard)],
+        env=env,
+        capture_output=True,
+        check=True,
+    )
+    assert "__DATA__" not in dashboard.read_text() and "JEV FILTER" in dashboard.read_text()
     print(
         json.dumps(
             {

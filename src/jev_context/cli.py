@@ -128,6 +128,10 @@ def save_archive(payload, destination=None):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "stats":
+        from .stats import main as stats_main
+
+        return stats_main(sys.argv[2:])
     if len(sys.argv) > 1 and sys.argv[1] in ("code-search", "locate", "triage"):
         from .tools import main as semantic_main
 
@@ -206,6 +210,7 @@ def main():
             add_help=False,
             help="Specialized collection and semantic analysis; see " + name + " --help",
         )
+    commands.add_parser("stats", help="Local usage ledger and savings dashboard")
     doctor = commands.add_parser(
         "doctor", help="Check local setup; --live makes one billable synthetic request"
     )
@@ -233,7 +238,11 @@ def main():
         with sys.stdin if args.input == "-" else open(args.input) as stream:
             items = json.load(stream)
         result = run(items, workers=args.workers)
-        print(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
+        rendered = json.dumps(result, ensure_ascii=False, separators=(",", ":"))
+        from .stats import record
+
+        record("batch", None, rendered + "\n", result, comparable=False)
+        print(rendered)
         return 0 if result["ok"] else 2
     if args.command == "list":
         payload = json.loads(Path(args.archive).read_text())
@@ -415,7 +424,16 @@ def main():
         output.pop("input_chars", None)
         output.pop("shown_chars", None)
         output.pop("part_count", None)
-    print(analysis.render(output, spec))
+    rendered = analysis.render(output, spec)
+    from .stats import record
+
+    record(
+        args.command,
+        json.dumps(records, ensure_ascii=False, separators=(",", ":")),
+        rendered + "\n",
+        output,
+    )
+    print(rendered)
     return 0 if output["ok"] and (output["complete"] or mode == "passthrough") else 2
 
 

@@ -58,6 +58,10 @@ def main():
         "jev_context",
         "--collect-all",
         "certifi",
+        "--collect-all",
+        "tiktoken",
+        "--collect-all",
+        "tiktoken_ext",
         "--exclude-module",
         "matplotlib",
         "--exclude-module",
@@ -111,6 +115,11 @@ def main():
         "tree-sitter-typescript",
         "tree-sitter-go",
         "pyinstaller",
+        "tiktoken",
+        "regex",
+        "requests",
+        "urllib3",
+        "charset-normalizer",
     ]:
         dist = importlib.metadata.distribution(name)
         for file in dist.files or []:

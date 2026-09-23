@@ -3,6 +3,19 @@
 The format follows Keep a Changelog; versions follow SemVer within the limitations
 of a 0.x API (minor releases may make documented breaking changes).
 
+## [0.2.0] - 2026-09-23
+
+### Added
+- Opt-in, private SQLite usage ledger for CLI collection/filtering and typed-batch costs.
+- Per-call input-token reduction and USD input-value estimates, Jev cost, price snapshots and explicit unknown/negative results.
+- Local byte estimates, optional tiktoken text counts and opt-in official OpenAI/Anthropic counters.
+- Read-only localhost dashboard with model/date/method filters, daily/tool breakdowns and filtered JSON/self-contained HTML exports.
+- Isolated arithmetic, privacy, failure, API-adapter, concurrent-write and rendered desktop/mobile tests.
+
+### Scope
+- Statistics estimate normalized candidate JSON versus the returned packet once; they do not claim whole-agent or subscription invoice savings.
+- No change to semantic predicates, inference planning, authorization or result-cache policy.
+
 ## [0.1.0] - 2026-09-22
 
 ### Added
