@@ -1,43 +1,104 @@
 name: Publish npm
 on:
+  workflow_run:
+    workflows: ['Release']
+    types: [completed]
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing release tag to publish
+        description: Existing stable release tag to publish or resume
         required: true
         type: string
 permissions:
   contents: read
+concurrency:
+  group: npm-publication
+  cancel-in-progress: false
 jobs:
   publish:
-    if: vars.NPM_TRUSTED_PUBLISHING == 'true'
+    if: >-
+      github.repository == 'apixly-ai/jev-filter' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
     environment: npm
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write
+      attestations: read
     steps:
+      - name: Require the protected default branch
+        env:
+          REF: ${{ github.ref }}
+        run: test "$REF" = refs/heads/main
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24'
-          registry-url: https://registry.npmjs.org
-      - name: Download and verify released npm package
+      - name: Install OIDC-capable npm
+        run: npm install --global npm@11.20.0 --ignore-scripts
+      - name: Resolve and verify the immutable release
         env:
-          TAG: ${{ inputs.tag }}
+          REQUESTED_TAG: ${{ inputs.tag || github.event.workflow_run.head_branch }}
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          case "$TAG" in v[0-9]*.[0-9]*.[0-9]*) ;; *) exit 1 ;; esac
+          set -euo pipefail
+          python - <<'PY'
+          import os, re
+          tag = os.environ['REQUESTED_TAG']
+          if not re.fullmatch(r'v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)', tag):
+              raise SystemExit('An exact stable release tag is required')
+          with open(os.environ['GITHUB_ENV'], 'a') as out:
+              out.write('TAG=' + tag + '\n')
+          PY
+          commit=$(git rev-parse "$REQUESTED_TAG^{commit}")
+          git merge-base --is-ancestor "$commit" origin/main
+          if [ -n "$RELEASE_SHA" ]; then test "$commit" = "$RELEASE_SHA"; fi
+          echo "RELEASE_COMMIT=$commit" >> "$GITHUB_ENV"
+          gh release view "$REQUESTED_TAG" --json isDraft,isPrerelease > release.json
+          python - <<'PY'
+          import json
+          release = json.load(open('release.json'))
+          if release['isDraft'] or release['isPrerelease']:
+              raise SystemExit('Only published stable releases are supported')
+          PY
+      - name: Download and authenticate all five release tarballs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
           mkdir artifacts
           gh release download "$TAG" --pattern '*.tgz' --pattern SHA256SUMS --dir artifacts
-          cd artifacts
-          sha256sum --check --ignore-missing SHA256SUMS
-          gh attestation verify "apixly-jev-filter-${TAG#v}.tgz" --repo "$GITHUB_REPOSITORY"
-      - name: Publish through configured npm trusted publisher
-        env:
-          TAG: ${{ inputs.tag }}
-        run: |
-          for package in artifacts/apixly-jev-filter-darwin-*.tgz artifacts/apixly-jev-filter-linux-*.tgz; do
-            npm publish "$package" --access public --provenance
+          python scripts/publish_npm.py --tag "$TAG"
+          for package in artifacts/*.tgz; do
+            gh attestation verify "$package" --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/release.yml" \
+              --source-ref "refs/tags/$TAG" --source-digest "$RELEASE_COMMIT"
           done
-          npm publish "artifacts/apixly-jev-filter-${TAG#v}.tgz" --access public --provenance
+      - name: Publish native packages first, main package last
+        run: python scripts/publish_npm.py --tag "$TAG" --publish
+      - name: Verify a fresh registry installation
+        run: |
+          set -euo pipefail
+          temporary=$(mktemp -d)
+          npm install --prefix "$temporary" --ignore-scripts --no-audit --no-fund \
+            "@apixly/jev-filter@${TAG#v}" --registry https://registry.npmjs.org
+          "$temporary/node_modules/.bin/jev-filter" doctor > "$temporary/doctor.json"
+          python - "$temporary/doctor.json" "${TAG#v}" <<'PY'
+          import json, sys
+          data = json.load(open(sys.argv[1]))
+          assert data['ok'] and data['version'] == sys.argv[2]
+          assert data['ripgrep'] and data['tree_sitter']
+          PY
+          JEV_STATS_DIR="$temporary/stats" "$temporary/node_modules/.bin/jev-filter" stats dashboard --html "$temporary/dashboard.html"
+          test -s "$temporary/dashboard.html"
+          echo "Published and registry-installed all five packages for $TAG." >> "$GITHUB_STEP_SUMMARY"
+      - name: Explain first-time trust setup on failure
+        if: failure()
+        run: |
+          echo 'If npm rejects OIDC: bootstrap the five package names once with an authenticated maintainer, then configure each npm Trusted Publisher for apixly-ai/jev-filter, publish-npm.yml, environment npm, with direct publishing enabled. Re-run this workflow with the same tag; identical published versions are skipped.' >> "$GITHUB_STEP_SUMMARY"

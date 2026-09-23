@@ -137,6 +137,8 @@ We use Jev Filter in our own environment. Source annotation, Telegram maintenanc
 - **Portable core.** Python library plus npm CLI distribution; automatic batching, maximum 30 requests in flight.
 - **Transparent boundaries.** Inputs used for inference are sent to TypeSafe. `exec` runs your command and is not a sandbox. Selection does not authorize actions. [Security →](SECURITY.md)
 
+After one-time npm package trust setup, successful GitHub Releases automatically publish all five packages through OIDC and verify a fresh registry install. No long-lived npm token is stored. See [publication and recovery](docs/distribution.md#one-time-npm-trust-setup).
+
 ## Contribute
 
 ```sh

@@ -38,14 +38,58 @@ and install downloads are extra costs; no speedup is inferred from bundling.
 2. Create `v<version>` on that reviewed commit. Protected tags cannot be rewritten.
 3. GitHub Actions rebuilds all four platform tarballs, wheel/sdist and the main npm
    package, checks them, then publishes checksums and provenance with the release.
-4. Publish the four verified platform tarballs, then the main tarball with
-   `npm publish --access public`. Never publish credentials or rewrite an existing
-   npm version.
-5. Verify a clean `npm install` from the registry and the installed CLI.
+4. Successful `Release` runs automatically trigger `publish-npm.yml` on protected
+   `main`. Manual dispatch with an existing stable `vMAJOR.MINOR.PATCH` tag supports recovery.
+5. The publisher validates exactly five package identities/versions, every SHA-256 and
+   every GitHub attestation against the release tag, commit and signing workflow.
+6. Publish four native packages before the main package through npm OIDC. Existing
+   versions are skipped only when registry SHA-512 integrity matches the release bytes.
+   Collisions, lookup failures and uncertain uploads stop; no blind upload retries occur.
+7. Install from the registry into a new directory, then verify `doctor` and dashboard export.
 
-npm trusted publishing should use the repository's `publish-npm.yml` workflow after
-the package-level trusted publisher is configured. It avoids a long-lived registry
-secret; GitHub's OIDC provenance ties publication to the workflow/source.
-The first package can be bootstrapped with an authenticated maintainer session.
+## One-time npm trust setup
+
+GitHub is configured to use the existing `npm` environment (protected branches only),
+Node 24 and pinned npm 11.20.0. There is no long-lived npm secret or enablement variable.
+The workflow runs automatically but publication cannot succeed until npm trusts it.
+
+npm requires each package to already exist before its Trusted Publisher can be configured.
+Bootstrap the four platform packages and main package once using the release tarballs and
+an authenticated maintainer session. The account must have 2FA enabled to configure trust;
+a bypass-2FA granular token does not authorize trust/account-governance changes.
+
+For **each of the five packages**, configure npm Settings → Trusted Publisher:
+
+| Field | Value |
+|---|---|
+| Provider | GitHub Actions |
+| Organization/user | `apixly-ai` |
+| Repository | `jev-filter` |
+| Workflow filename | `publish-npm.yml` |
+| Environment | `npm` |
+| Allowed action | Direct publishing (`npm publish`), not stage-only |
+
+The package names are `@apixly/jev-filter` and the four suffixes `-darwin-arm64`,
+`-darwin-x64`, `-linux-arm64`, `-linux-x64`. With npm 11.15+ the equivalent command is:
+
+```sh
+npm trust github PACKAGE --repo apixly-ai/jev-filter \
+  --file publish-npm.yml --environment npm --allow-publish --yes
+```
+
+Complete the interactive account verification when requested. Once trust is established,
+future CI publication uses short-lived OIDC credentials without a human 2FA prompt.
+Do not select stage-only permission if unattended direct publication is intended.
+
+To publish/resume the existing release after setup:
+
+```sh
+gh workflow run publish-npm.yml --ref main -f tag=v0.2.0
+```
+
+A green GitHub Release is not proof of npm publication; check the separate Publish npm
+run and registry installation result. Missing npm trust remains a failed publish with a
+setup explanation in the job summary. [npm trust prerequisites](https://docs.npmjs.com/cli/v11/commands/npm-trust/)
+· [Trusted publishing](https://docs.npmjs.com/trusted-publishers/).
 
 Each platform package includes `BUILDINFO.json` with runtime versions and file hashes; installer-origin paths are removed and package contents checked before publication.

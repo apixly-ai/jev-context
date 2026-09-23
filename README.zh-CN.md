@@ -134,6 +134,8 @@ cp -R "$(npm root -g)/@apixly/jev-filter/skills/jev-filter" ~/.codex/skills/
 - **可复用的内核。** Python library 与 npm CLI；自动合批，最多 30 个在途请求。
 - **明确的边界。** 参与推理的输入会发送给 TypeSafe；`exec` 执行你提供的命令，不是沙箱；判断结果不替代操作授权。[安全说明 →](SECURITY.zh-CN.md)
 
+完成一次 npm 包信任配置后，GitHub Release 成功会自动通过 OIDC 发布五个包，并从注册表全新安装验收，无需保存长期 npm token。参见[首次配置与续办](docs/distribution.zh-CN.md#首次-npm-信任配置)。
+
 ## 参与开发
 
 ```sh
