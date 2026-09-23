@@ -108,7 +108,7 @@ with tempfile.TemporaryDirectory() as temp:
         urls = []
         for _ in range(2):
             process = subprocess.Popen(
-                [str(cli), "stats", "dashboard"],
+                [str(cli), "stats", "dashboard", "--no-open"],
                 env=env,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

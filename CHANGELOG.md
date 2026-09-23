@@ -3,6 +3,13 @@
 The format follows Keep a Changelog; versions follow SemVer within the limitations
 of a 0.x API (minor releases may make documented breaking changes).
 
+## [0.2.2] - 2026-09-23
+
+### Added
+- The dashboard opens its authenticated localhost URL in the default browser on startup. Use `--no-open` in headless environments.
+- Browser launch failures retain the running server and printable URL; browser launch runs separately from HTTP serving.
+- Publication waits for npm asynchronous processing and package-index visibility before fresh installation, without repeating uploads.
+
 ## [0.2.1] - 2026-09-23
 
 ### Fixed

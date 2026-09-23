@@ -85,6 +85,37 @@ def registry_integrity(package):
     return integrity
 
 
+def registry_index_integrity(package):
+    url = REGISTRY + urllib.parse.quote(package["name"], safe="")
+    try:
+        with urllib.request.urlopen(url, timeout=30) as response:
+            data = json.load(response)
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            return None
+        raise RuntimeError(f"Registry index lookup failed (HTTP {exc.code})") from None
+    if data.get("name") != package["name"]:
+        raise ValueError("Registry index identity mismatch")
+    return data.get("versions", {}).get(package["version"], {}).get("dist", {}).get("integrity")
+
+
+def wait_for_index(packages, lookup=registry_index_integrity, sleep=time.sleep):
+    for attempt in range(61):
+        pending = []
+        for package in packages:
+            integrity = lookup(package)
+            if integrity is None:
+                pending.append(package["name"])
+            elif integrity != package["integrity"]:
+                raise ValueError("Registry index contains different bytes: " + package["name"])
+        if not pending:
+            return
+        print(json.dumps({"status": "waiting_for_registry_index", "packages": pending}), flush=True)
+        if attempt == 60:
+            raise RuntimeError("Registry index is not ready; uploads were not repeated")
+        sleep(10)
+
+
 def upload(package):
     subprocess.run(
         [
@@ -114,13 +145,13 @@ def publish_packages(packages, lookup=registry_integrity, publish=upload, sleep=
         if existing[p["name"]] is None:
             publish(p)  # Never retry an uncertain upload; a rerun inspects registry first.
             status = "published"
-            for attempt in range(6):
+            for attempt in range(31):
                 observed = lookup(p)
                 if observed == p["integrity"]:
                     break
                 if observed is not None:
                     raise ValueError("Published version has different registry integrity")
-                if attempt == 5:
+                if attempt == 30:
                     raise RuntimeError("Published version is not visible; inspect before rerunning")
                 sleep(min(2**attempt, 8))
         row = {"name": p["name"], "version": p["version"], "status": status}
@@ -145,6 +176,7 @@ def main():
         if os.environ.get("GITHUB_REPOSITORY") != "apixly-ai/jev-filter":
             raise ValueError("Publication is restricted to the maintained repository")
         publish_packages(packages)
+        wait_for_index(packages)
     else:
         print(
             json.dumps(

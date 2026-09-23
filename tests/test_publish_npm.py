@@ -134,3 +134,35 @@ def test_upload_uses_unambiguous_local_tarball_path(tmp_path, monkeypatch):
     monkeypatch.setattr(publisher.subprocess, "run", lambda argv, **kw: calls.append(argv))
     publisher.upload({"path": "artifacts/example.tgz"})
     assert calls[0][2] == str(artifact.resolve())
+
+
+def test_accepted_upload_waits_for_delayed_processing_without_reupload(artifacts):
+    packages = publisher.verified_packages(artifacts, "v0.2.0")[:1]
+    reads = []
+    uploads = []
+
+    def delayed(package):
+        reads.append(True)
+        return package["integrity"] if len(reads) >= 9 else None
+
+    result = publisher.publish_packages(
+        packages, lookup=delayed, publish=uploads.append, sleep=lambda _: None
+    )
+    assert result[0]["status"] == "published"
+    assert len(uploads) == 1
+
+
+def test_index_wait_handles_lag_and_rejects_different_bytes(artifacts):
+    packages = publisher.verified_packages(artifacts, "v0.2.0")[:1]
+    calls = []
+
+    def delayed(package):
+        calls.append(True)
+        return None if len(calls) < 3 else package["integrity"]
+
+    publisher.wait_for_index(packages, lookup=delayed, sleep=lambda _: None)
+    assert len(calls) == 3
+    with pytest.raises(ValueError, match="different"):
+        publisher.wait_for_index(packages, lookup=lambda _: "sha512-wrong", sleep=lambda _: None)
+    with pytest.raises(RuntimeError, match="not ready"):
+        publisher.wait_for_index(packages, lookup=lambda _: None, sleep=lambda _: None)

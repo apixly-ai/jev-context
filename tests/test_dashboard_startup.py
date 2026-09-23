@@ -50,7 +50,7 @@ def test_permission_errors_do_not_trigger_port_fallback(monkeypatch):
 
 def test_cli_default_and_explicit_port_and_exit_status(monkeypatch):
     calls = []
-    monkeypatch.setattr(dashboard, "serve", lambda port, *args: calls.append(port) or 1)
+    monkeypatch.setattr(dashboard, "serve", lambda port, *args, **kw: calls.append(port) or 1)
     assert stats.main(["dashboard"]) == 1
     assert stats.main(["dashboard", "--port", "0"]) == 1
     assert calls == [None, 0]
@@ -61,3 +61,66 @@ def test_cli_rejects_invalid_ports(value):
     with pytest.raises(SystemExit) as exc:
         stats.main(["dashboard", "--port", value])
     assert exc.value.code == 2
+
+
+def test_browser_opens_printed_url_by_default(monkeypatch, capsys):
+    from types import SimpleNamespace
+
+    monkeypatch.setattr(
+        dashboard, "Thread", lambda target, args, **kw: SimpleNamespace(start=lambda: target(*args))
+    )
+    opened = []
+
+    class Stub:
+        def serve_forever(self):
+            raise KeyboardInterrupt
+
+        def server_close(self):
+            pass
+
+    monkeypatch.setattr(
+        dashboard, "server", lambda *a: (Stub(), "http://127.0.0.1:12345/?token=fixture")
+    )
+    monkeypatch.setattr(dashboard.webbrowser, "open", lambda url: opened.append(url) or True)
+    assert dashboard.serve() == 0
+    assert opened == [json.loads(capsys.readouterr().out)["dashboard"]]
+
+
+def test_no_open_and_browser_failure_preserve_server(monkeypatch, capsys):
+    from types import SimpleNamespace
+
+    monkeypatch.setattr(
+        dashboard, "Thread", lambda target, args, **kw: SimpleNamespace(start=lambda: target(*args))
+    )
+    served = []
+
+    class Stub:
+        def serve_forever(self):
+            served.append(True)
+            raise KeyboardInterrupt
+
+        def server_close(self):
+            pass
+
+    monkeypatch.setattr(
+        dashboard, "server", lambda *a: (Stub(), "http://127.0.0.1:12345/?token=fixture")
+    )
+
+    def broken(url):
+        raise OSError("PRIVATE_BROWSER_DETAILS")
+
+    monkeypatch.setattr(dashboard.webbrowser, "open", broken)
+    assert dashboard.serve(open_browser=False) == 0
+    assert capsys.readouterr().err == ""
+    assert dashboard.serve() == 0
+    captured = capsys.readouterr()
+    assert "PRIVATE_BROWSER_DETAILS" not in captured.err
+    assert "BrowserNotOpened" in captured.err
+    assert len(served) == 2
+
+
+def test_no_open_cli_is_forwarded(monkeypatch):
+    captured = []
+    monkeypatch.setattr(dashboard, "serve", lambda *a, **kw: captured.append(kw) or 0)
+    assert stats.main(["dashboard", "--no-open"]) == 0
+    assert captured == [{"open_browser": False}]

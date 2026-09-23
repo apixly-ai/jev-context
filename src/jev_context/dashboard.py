@@ -4,8 +4,10 @@ import errno
 import json
 import secrets
 import sys
+import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from threading import Thread
 from urllib.parse import parse_qs, urlsplit
 
 from .stats import report
@@ -93,7 +95,24 @@ def server(port=None, model=None, since=None, until=None):
     return httpd, f"http://127.0.0.1:{httpd.server_port}/?token={token}"
 
 
-def serve(port=None, model=None, since=None, until=None):
+def open_page(url):
+    try:
+        opened = webbrowser.open(url)
+    except Exception:
+        opened = False
+    if not opened:
+        print(
+            json.dumps(
+                {
+                    "warning": "BrowserNotOpened",
+                    "message": "Open the printed dashboard URL manually; the server is still running.",
+                }
+            ),
+            file=sys.stderr,
+        )
+
+
+def serve(port=None, model=None, since=None, until=None, *, open_browser=True):
     try:
         httpd, url = server(port, model, since, until)
     except PortInUse:
@@ -110,6 +129,8 @@ def serve(port=None, model=None, since=None, until=None):
         )
         return 1
     print(json.dumps({"dashboard": url, "bind": "loopback", "read_only": True}), flush=True)
+    if open_browser:
+        Thread(target=open_page, args=(url,), daemon=True).start()
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

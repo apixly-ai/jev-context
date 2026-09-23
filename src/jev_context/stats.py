@@ -308,6 +308,9 @@ def main(argv):
         cmd.add_argument("--until")
         if name == "dashboard":
             cmd.add_argument(
+                "--no-open", action="store_true", help="Print the URL without opening a browser"
+            )
+            cmd.add_argument(
                 "--port",
                 type=port_number,
                 help="Explicit port (0 chooses an available port); default tries 8765 then an available port",
@@ -334,5 +337,7 @@ def main(argv):
                 out.write(page(data))
             print(json.dumps({"html": str(Path(args.html).resolve())}))
         else:
-            return serve(args.port, args.model, args.since, args.until)
+            return serve(
+                args.port, args.model, args.since, args.until, open_browser=not args.no_open
+            )
     return 0
