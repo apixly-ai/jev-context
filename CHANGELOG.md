@@ -3,6 +3,13 @@
 The format follows Keep a Changelog; versions follow SemVer within the limitations
 of a 0.x API (minor releases may make documented breaking changes).
 
+## [0.2.1] - 2026-09-23
+
+### Fixed
+- Dashboard startup automatically chooses a free loopback port if the default 8765 is occupied.
+- Explicit busy ports return an actionable `PortInUse` error; `--port 0` selects an available port. Invalid port values are rejected before binding.
+- Dashboard instances never share a listening port, including on Python versions with reusable-port defaults.
+
 ## [0.2.0] - 2026-09-23
 
 ### Added

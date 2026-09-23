@@ -1,12 +1,25 @@
 """Dependency-free, read-only loopback dashboard. No third-party assets or telemetry."""
 
+import errno
 import json
 import secrets
+import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 from .stats import report
+
+DEFAULT_PORT = 8765
+
+
+class DashboardHTTPServer(ThreadingHTTPServer):
+    # Never share a port with another instance carrying a different access token.
+    allow_reuse_port = False
+
+
+class PortInUse(ValueError):
+    pass
 
 
 def page(data, live=False):
@@ -20,7 +33,7 @@ def page(data, live=False):
     return template.replace("__DATA__", payload).replace("__LIVE__", "true" if live else "false")
 
 
-def server(port, model=None, since=None, until=None):
+def server(port=None, model=None, since=None, until=None):
     token = secrets.token_urlsafe(24)
 
     class Handler(BaseHTTPRequestHandler):
@@ -68,12 +81,34 @@ def server(port, model=None, since=None, until=None):
             self.end_headers()
             self.wfile.write(body)
 
-    httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    requested = DEFAULT_PORT if port is None else port
+    try:
+        httpd = DashboardHTTPServer(("127.0.0.1", requested), Handler)
+    except OSError as error:
+        if error.errno != errno.EADDRINUSE:
+            raise
+        if port is not None:
+            raise PortInUse from None
+        httpd = DashboardHTTPServer(("127.0.0.1", 0), Handler)
     return httpd, f"http://127.0.0.1:{httpd.server_port}/?token={token}"
 
 
-def serve(port, model=None, since=None, until=None):
-    httpd, url = server(port, model, since, until)
+def serve(port=None, model=None, since=None, until=None):
+    try:
+        httpd, url = server(port, model, since, until)
+    except PortInUse:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error_type": "PortInUse",
+                    "port": port,
+                    "message": f"Port {port} is already in use. Run jev-filter stats dashboard --port 0 to choose an available port.",
+                }
+            ),
+            file=sys.stderr,
+        )
+        return 1
     print(json.dumps({"dashboard": url, "bind": "loopback", "read_only": True}), flush=True)
     try:
         httpd.serve_forever()
@@ -81,3 +116,5 @@ def serve(port, model=None, since=None, until=None):
         pass
     finally:
         httpd.server_close()
+
+    return 0
