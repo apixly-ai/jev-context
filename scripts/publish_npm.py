@@ -90,7 +90,7 @@ def upload(package):
         [
             "npm",
             "publish",
-            package["path"],
+            str(Path(package["path"]).resolve(strict=True)),
             "--access",
             "public",
             "--provenance",

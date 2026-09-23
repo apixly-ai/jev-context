@@ -123,3 +123,14 @@ def test_visibility_failure_stops_before_main(artifacts):
 def test_untrusted_tags_rejected(artifacts, tag):
     with pytest.raises(ValueError):
         publisher.verified_packages(artifacts, tag)
+
+
+def test_upload_uses_unambiguous_local_tarball_path(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    artifact = tmp_path / "artifacts/example.tgz"
+    artifact.parent.mkdir()
+    artifact.write_bytes(b"synthetic")
+    calls = []
+    monkeypatch.setattr(publisher.subprocess, "run", lambda argv, **kw: calls.append(argv))
+    publisher.upload({"path": "artifacts/example.tgz"})
+    assert calls[0][2] == str(artifact.resolve())
