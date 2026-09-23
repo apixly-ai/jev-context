@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jev-filter"
-version = "0.1.0"
+version = "0.2.0"
 description = "Evidence-preserving semantic tools for AI agents, powered by Jev"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,10 +15,11 @@ classifiers = ["Development Status :: 4 - Beta", "Programming Language :: Python
 dependencies = ["httpx>=0.28.1,<0.29"]
 
 [project.optional-dependencies]
+stats = ["tiktoken>=0.9,<1"]
 code = ["tree-sitter>=0.25.2,<0.27", "tree-sitter-javascript>=0.25,<0.26", "tree-sitter-typescript>=0.23.2,<0.24", "tree-sitter-go>=0.25,<0.26"]
 dev = ["pytest>=8.3,<10", "pytest-cov>=6,<8", "ruff>=0.11,<1", "build>=1.2,<2", "twine>=7,<8", "pip-audit>=2.8,<3", "jsonschema>=4.23,<5", "pyyaml>=6,<7"]
 docs = ["matplotlib>=3.10,<4", "markdown>=3.7,<4"]
-bundle = ["pyinstaller>=6.16,<7"]
+bundle = ["pyinstaller>=6.16,<7", "tiktoken>=0.9,<1"]
 browser-test = ["playwright>=1.51,<2"]
 
 [project.scripts]
