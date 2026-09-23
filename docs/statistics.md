@@ -17,7 +17,7 @@ jev-filter stats dashboard --html usage.html
 ```
 
 The dashboard prints a token-protected `127.0.0.1` URL, remains running until Ctrl-C,
-and refreshes on demand. Without `--port`, it tries 8765 and automatically selects a free port if occupied. An explicitly busy port returns `PortInUse`; `--port 0` always selects an available port. It needs no frontend build, external scripts or hosted service.
+and refreshes on demand. It opens the URL in your default browser; use `--no-open` for headless/CI use. If no browser can be opened, the printed URL and server remain available. Without `--port`, it tries 8765 and automatically selects a free port if occupied. An explicitly busy port returns `PortInUse`; `--port 0` always selects an available port. It needs no frontend build, external scripts or hosted service.
 Model, UTC date and counting-method filters apply to cards, charts, details and JSON export.
 The table shows the newest 100 filtered events; exports include all filtered events.
 
