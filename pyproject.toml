@@ -35,7 +35,7 @@ Changelog = "https://github.com/apixly-ai/jev-filter/blob/main/CHANGELOG.md"
 [tool.hatch.build.targets.wheel]
 packages = ["src/jev_context", "src/jev_filter"]
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests", "docs", "examples", "skills", "benchmarks", "schemas", "scripts", "npm", "package.json", "pyproject.toml", "*.md", "LICENSE", "NOTICE", "CHANGELOG.md"]
+include = [".github/workflows", "src", "tests", "docs", "examples", "skills", "benchmarks", "schemas", "scripts", "npm", "package.json", "pyproject.toml", "*.md", "LICENSE", "NOTICE", "CHANGELOG.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

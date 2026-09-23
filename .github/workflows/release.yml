@@ -2,6 +2,9 @@ name: Release
 on:
   push:
     tags: ['v*']
+concurrency:
+  group: release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
@@ -34,7 +37,7 @@ jobs:
       - run: |
           sudo apt-get update && sudo apt-get install -y ripgrep
           python -m pip install --upgrade pip
-          python -m pip install '.[code,dev]'
+          python -m pip install '.[code,dev,stats]'
           python scripts/check_release.py "$GITHUB_REF_NAME"
           sh scripts/check.sh
           python -m pip_audit -f cyclonedx-json -o dist/dependencies.cdx.json
