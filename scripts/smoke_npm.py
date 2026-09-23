@@ -6,7 +6,9 @@ import platform
 import shutil
 import subprocess
 import tempfile
+import urllib.request
 from pathlib import Path
+from urllib.parse import urlsplit
 
 root = Path(__file__).resolve().parents[1]
 package = json.loads((root / "package.json").read_text())
@@ -100,6 +102,28 @@ with tempfile.TemporaryDirectory() as temp:
         check=True,
     )
     assert "__DATA__" not in dashboard.read_text() and "JEV FILTER" in dashboard.read_text()
+    # Repeated default launches must both return usable, distinct loopback URLs.
+    servers = []
+    try:
+        urls = []
+        for _ in range(2):
+            process = subprocess.Popen(
+                [str(cli), "stats", "dashboard"],
+                env=env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            servers.append(process)
+            urls.append(json.loads(process.stdout.readline())["dashboard"])
+        assert urlsplit(urls[0]).port != urlsplit(urls[1]).port
+        for url in urls:
+            with urllib.request.urlopen(url, timeout=10) as response:
+                assert response.status == 200
+    finally:
+        for process in servers:
+            process.terminate()
+            process.communicate(timeout=10)
     print(
         json.dumps(
             {
@@ -108,6 +132,7 @@ with tempfile.TemporaryDirectory() as temp:
                 "system_rg_on_path": False,
                 "doctor": doctor,
                 "code_search": True,
+                "repeated_dashboard_start": True,
             }
         )
     )

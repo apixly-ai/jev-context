@@ -277,6 +277,16 @@ def report(model=None, since=None, until=None):
     )
 
 
+def port_number(value):
+    try:
+        port = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("port must be an integer from 0 to 65535") from None
+    if not 0 <= port <= 65535:
+        raise argparse.ArgumentTypeError("port must be an integer from 0 to 65535")
+    return port
+
+
 def main(argv):
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="action", required=True)
@@ -297,7 +307,11 @@ def main(argv):
         cmd.add_argument("--since")
         cmd.add_argument("--until")
         if name == "dashboard":
-            cmd.add_argument("--port", type=int, default=8765)
+            cmd.add_argument(
+                "--port",
+                type=port_number,
+                help="Explicit port (0 chooses an available port); default tries 8765 then an available port",
+            )
             cmd.add_argument("--html", help="Export a self-contained snapshot instead of serving")
     sub.add_parser("disable", help="Disable recording; retain existing statistics")
     args = parser.parse_args(argv)
@@ -320,5 +334,5 @@ def main(argv):
                 out.write(page(data))
             print(json.dumps({"html": str(Path(args.html).resolve())}))
         else:
-            serve(args.port, args.model, args.since, args.until)
+            return serve(args.port, args.model, args.since, args.until)
     return 0
