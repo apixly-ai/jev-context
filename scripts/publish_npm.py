@@ -133,6 +133,9 @@ def upload(package):
     )
 
 
+VISIBILITY_ATTEMPTS = 65  # ~15.5 minutes of polling per package
+
+
 def publish_packages(packages, lookup=registry_integrity, publish=upload, sleep=time.sleep):
     # Check every existing version before any write. A version collision is not a retry.
     existing = {p["name"]: lookup(p) for p in packages}
@@ -145,15 +148,18 @@ def publish_packages(packages, lookup=registry_integrity, publish=upload, sleep=
         if existing[p["name"]] is None:
             publish(p)  # Never retry an uncertain upload; a rerun inspects registry first.
             status = "published"
-            for attempt in range(31):
+            # npm processes large tarballs asynchronously after "+ name@version"; the 20-35 MB
+            # platform bundles took 4-6 minutes to appear in the registry for 0.2.3, so the wait
+            # budget is ~15 minutes (1+2+4+8 s, then 15 s steps) rather than the earlier ~4.
+            for attempt in range(VISIBILITY_ATTEMPTS):
                 observed = lookup(p)
                 if observed == p["integrity"]:
                     break
                 if observed is not None:
                     raise ValueError("Published version has different registry integrity")
-                if attempt == 30:
+                if attempt == VISIBILITY_ATTEMPTS - 1:
                     raise RuntimeError("Published version is not visible; inspect before rerunning")
-                sleep(min(2**attempt, 8))
+                sleep(min(2**attempt, 15))
         row = {"name": p["name"], "version": p["version"], "status": status}
         result.append(row)
         print(json.dumps(row), flush=True)

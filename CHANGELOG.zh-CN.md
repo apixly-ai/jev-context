@@ -2,6 +2,10 @@
 
 [English](CHANGELOG.md)
 
+## 未发布
+
+- npm 发布对每个包最多等待约 15 分钟让 registry 完成异步处理（原约 4 分钟，导致 0.2.3 每发一个平台包就中止）；工作流超时相应提高到 90 分钟。
+
 ## 0.2.3 — 2026-09-24
 
 - Python 包可在 Windows 原生运行：`pool` 不再强制导入 POSIX 专有的 `resource`；key 文件读取不依赖 `O_NOFOLLOW`/`getuid`（仍拒绝符号链接，Unix 权限位检查仅 POSIX）；`exec` 在没有 `select()`/`killpg` 的平台用读线程接管道、用 `taskkill /T` 结束整棵进程树。
