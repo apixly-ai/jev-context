@@ -48,7 +48,7 @@
 
 ## 快速开始
 
-**Node.js 22+ · macOS / Linux · npm 发行包不需要另外安装 Python。** Windows 可用 WSL，或原生安装 Python 包（`pip install jev-filter`，Python 3.10+；`search` 需要 PATH 里有 `rg`）。只有实际推理才需要 TypeSafe Jev API key。
+**Node.js 22+ · macOS / Linux · npm 发行包不需要另外安装 Python。** Windows 可用 WSL，或从 GitHub Release 的 wheel / `pip install 'jev-filter[code] @ git+https://github.com/apixly-ai/jev-filter.git@v0.2.3'` 原生安装 Python 包（Python 3.10+；`search` 需要 PATH 里有 `rg`；未发布到 PyPI）。只有实际推理才需要 TypeSafe Jev API key。
 
 通过 npm 安装：
 

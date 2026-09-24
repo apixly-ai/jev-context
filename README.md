@@ -50,7 +50,7 @@ batch + parallel was **32.4% faster than single-record parallel**. This measures
 
 ## Quick start
 
-**Node.js 22+ · macOS or Linux · no separate Python setup for the npm distribution.** On Windows use WSL, or install the Python package natively (`pip install jev-filter`, Python 3.10+; `rg` on PATH for `search`). A TypeSafe Jev API key is needed only for inference.
+**Node.js 22+ · macOS or Linux · no separate Python setup for the npm distribution.** On Windows use WSL, or install the Python package natively from a GitHub Release wheel or `pip install 'jev-filter[code] @ git+https://github.com/apixly-ai/jev-filter.git@v0.2.3'` (Python 3.10+; `rg` on PATH for `search`; no PyPI package). A TypeSafe Jev API key is needed only for inference.
 
 Install from npm:
 
