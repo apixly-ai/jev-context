@@ -39,7 +39,8 @@ def artifacts(tmp_path):
         "".join(
             hashlib.sha256(p.read_bytes()).hexdigest() + "  " + p.name + "\n"
             for p in tmp_path.glob("*.tgz")
-        )
+        ),
+        encoding="utf-8",
     )
     return tmp_path
 

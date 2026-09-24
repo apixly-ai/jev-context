@@ -4,7 +4,7 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 
 function platformPackage(platform = process.platform, arch = process.arch) {
-  if (platform === 'win32') throw new Error('Use WSL: native Windows is not supported yet.');
+  if (platform === 'win32') throw new Error('The npm launcher ships POSIX binaries only: use WSL, or install the Python package natively with `pip install jev-filter`.');
   if (!['linux', 'darwin'].includes(platform) || !['x64', 'arm64'].includes(arch)) {
     throw new Error(`Unsupported platform: ${platform}/${arch}. See the Python installation guide.`);
   }

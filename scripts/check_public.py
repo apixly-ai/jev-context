@@ -29,7 +29,7 @@ for p in files:
     if p.suffix.lower() in (".png", ".jpg", ".whl", ".gz"):
         continue
     try:
-        text = p.read_text()
+        text = p.read_text(encoding="utf-8")
     except UnicodeDecodeError:
         continue
     if any(pattern.search(text) for pattern in patterns):

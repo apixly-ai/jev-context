@@ -38,20 +38,31 @@ def credential() -> str:
             )
         )
         try:
-            with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW)) as stream:
-                info = os.fstat(stream.fileno())
-                if (
-                    not stat.S_ISREG(info.st_mode)
-                    or info.st_uid != os.getuid()
-                    or info.st_mode & 0o077
-                ):
-                    raise ProviderError("credential_file_permissions")
-                key = stream.read(8193).strip()
+            key = _read_private_file(path)
         except OSError:
             raise ProviderError("credentials_missing") from None
     if not key or len(key) > 8192 or any(c.isspace() for c in key):
         raise ProviderError("credentials_invalid")
     return key
+
+
+def _read_private_file(path: Path) -> str:
+    """Read a key file that must be a regular, non-symlinked file private to the user.
+
+    POSIX opens with O_NOFOLLOW and checks owner/mode atomically on the open descriptor.
+    Windows has neither O_NOFOLLOW nor Unix modes: symlinks are rejected via lstat before
+    opening, and privacy relies on the profile directory ACL rather than a mode check.
+    """
+    if not hasattr(os, "O_NOFOLLOW") and os.path.islink(path):
+        raise ProviderError("credential_file_permissions")
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    with os.fdopen(os.open(path, flags)) as stream:
+        info = os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode):
+            raise ProviderError("credential_file_permissions")
+        if hasattr(os, "getuid") and (info.st_uid != os.getuid() or info.st_mode & 0o077):
+            raise ProviderError("credential_file_permissions")
+        return stream.read(8193).strip()
 
 
 class Client:

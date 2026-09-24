@@ -30,7 +30,7 @@ def download(url):
 
 
 def main():
-    package = json.loads((ROOT / "package.json").read_text())
+    package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
     os_name = {"Darwin": "darwin", "Linux": "linux"}[platform.system()]
     arch = {"arm64": "arm64", "aarch64": "arm64", "x86_64": "x64", "AMD64": "x64"}[
         platform.machine()
@@ -95,7 +95,7 @@ def main():
         "repository": package["repository"],
         "files": ["bin", "LICENSE", "NOTICE", "THIRD_PARTY_LICENSES", "BUILDINFO.json"],
     }
-    (stage / "package.json").write_text(json.dumps(metadata, indent=2) + "\n")
+    (stage / "package.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     for name in ["LICENSE", "NOTICE"]:
         shutil.copy2(ROOT / name, stage / name)
     # Include installed runtime license texts alongside the bundled binaries.
@@ -131,7 +131,7 @@ def main():
         f"https://raw.githubusercontent.com/python/cpython/v{platform.python_version()}/LICENSE"
     )
     (licenses / "PYTHON-LICENSE.txt").write_bytes(download(python_license))
-    rg = json.loads((ROOT / "npm/ripgrep.json").read_text())[target]
+    rg = json.loads((ROOT / "npm/ripgrep.json").read_text(encoding="utf-8"))[target]
     archive = download(rg["url"])
     if hashlib.sha256(archive).hexdigest() != rg["sha256"]:
         raise ValueError("ripgrep release digest mismatch")
@@ -171,7 +171,7 @@ def main():
             if file.is_file()
         },
     }
-    (stage / "BUILDINFO.json").write_text(json.dumps(inventory, indent=2) + "\n")
+    (stage / "BUILDINFO.json").write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8")
     destination = ROOT / "dist"
     destination.mkdir(exist_ok=True)
     subprocess.run(

@@ -1,3 +1,6 @@
+import os
+import sys
+
 import httpx
 import pytest
 
@@ -17,10 +20,11 @@ def test_env_credentials_and_missing(monkeypatch, tmp_path):
     assert not check(True)["ok"]
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Unix owner/mode checks are POSIX-only")
 def test_private_file_and_symlink(monkeypatch, tmp_path):
     monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
     p = tmp_path / "key"
-    p.write_text("test-key")
+    p.write_text("test-key", encoding="utf-8")
     p.chmod(0o600)
     monkeypatch.setenv("TYPESAFE_API_KEY_FILE", str(p))
     assert credential() == "test-key"
@@ -30,6 +34,26 @@ def test_private_file_and_symlink(monkeypatch, tmp_path):
     p.chmod(0o600)
     link = tmp_path / "link"
     link.symlink_to(p)
+    monkeypatch.setenv("TYPESAFE_API_KEY_FILE", str(link))
+    with pytest.raises(ProviderError):
+        credential()
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows key-file path without Unix modes")
+def test_windows_key_file_and_symlink(monkeypatch, tmp_path):
+    monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
+    p = tmp_path / "key"
+    p.write_text("test-key", encoding="utf-8")
+    monkeypatch.setenv("TYPESAFE_API_KEY_FILE", str(p))
+    assert credential() == "test-key"
+    monkeypatch.setenv("TYPESAFE_API_KEY_FILE", str(tmp_path))
+    with pytest.raises(ProviderError):
+        credential()
+    link = tmp_path / "link"
+    try:
+        os.symlink(p, link)
+    except OSError:
+        pytest.skip("symlink creation needs Developer Mode or elevation")
     monkeypatch.setenv("TYPESAFE_API_KEY_FILE", str(link))
     with pytest.raises(ProviderError):
         credential()

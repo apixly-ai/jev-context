@@ -18,7 +18,7 @@ with platform packages on npm and mirrored tarballs on GitHub Releases.
 The launcher preserves argument boundaries, streams and exit status. It does not
 pass user input through an implicit shell. Linux bundles require glibc; Alpine/musl
 is not currently supported by the bundled Python runtime. macOS Intel/Apple Silicon
-and Linux x64/ARM64 are built and smoke-tested separately. Windows uses WSL.
+and Linux x64/ARM64 are built and smoke-tested separately. Windows uses WSL for the npm launcher; the Python package runs natively on Windows.
 
 ## What is verified
 

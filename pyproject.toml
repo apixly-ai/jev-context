@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 license = "MIT"
 authors = [{name = "JIA-ss"}]
 keywords = ["agents", "jev", "context", "cli", "semantic-search"]
-classifiers = ["Development Status :: 4 - Beta", "Programming Language :: Python :: 3", "Operating System :: POSIX :: Linux", "Operating System :: MacOS", "Topic :: Software Development :: Libraries"]
+classifiers = ["Development Status :: 4 - Beta", "Programming Language :: Python :: 3", "Operating System :: POSIX :: Linux", "Operating System :: MacOS", "Operating System :: Microsoft :: Windows", "Topic :: Software Development :: Libraries"]
 dependencies = ["httpx>=0.28.1,<0.29"]
 
 [project.optional-dependencies]

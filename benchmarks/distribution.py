@@ -96,7 +96,8 @@ def main():
             },
             indent=2,
         )
-        + "\n"
+        + "\n",
+        encoding="utf-8",
     )
     return 0 if all(row["exact"] for row in rows) else 2
 

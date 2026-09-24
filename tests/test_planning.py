@@ -103,6 +103,10 @@ class PlanningTests(unittest.TestCase):
         from jev_context.pool import worker_count
 
         self.assertEqual(worker_count(60, "auto"), 30)
+        with patch("jev_context.pool.resource", None):
+            # No descriptor limit available (Windows): only the request count and the cap bound it.
+            self.assertEqual(worker_count(60, "auto"), 30)
+            self.assertEqual(worker_count(4, "auto"), 4)
         self.assertEqual(worker_count(60, 30), 30)
         self.assertEqual(worker_count(2, 30), 2)
         with self.assertRaises(ValueError):
@@ -142,10 +146,14 @@ class PlanningTests(unittest.TestCase):
     def test_search_merges_contiguous_context_lines(self):
         with tempfile.TemporaryDirectory() as d:
             path = Path(d) / "x.py"
-            path.write_text('def function():\n    # needed context\n    return "needle"\n')
+            path.write_text(
+                'def function():\n    # needed context\n    return "needle"\n',
+                encoding="utf-8",
+                newline="\n",
+            )
             records, _ = cli.collect_search(d, "needle", 100)
             self.assertEqual(len(records), 1)
-            self.assertEqual(records[0]["text"], path.read_text())
+            self.assertEqual(records[0]["text"], path.read_text(encoding="utf-8"))
             self.assertEqual(records[0]["line"], 1)
             self.assertEqual(records[0]["end_line"], 3)
 

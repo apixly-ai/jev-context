@@ -14,7 +14,8 @@ class SemanticTools(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "x.py"
             p.write_text(
-                "@decorate\ndef write_state(x):\n    # needle\n    return x\n\ndef other():\n    return 2\n"
+                "@decorate\ndef write_state(x):\n    # needle\n    return x\n\ndef other():\n    return 2\n",
+                encoding="utf-8",
             )
             rows, meta = s.collect_code(d, "needle")
             self.assertEqual(len(rows), 1)
@@ -27,7 +28,8 @@ class SemanticTools(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "x.js"
             p.write_text(
-                'class Store {\n save(x) {\n const text = "} needle {";\n return x;\n }\n other() { return 2; }\n}\n'
+                'class Store {\n save(x) {\n const text = "} needle {";\n return x;\n }\n other() { return 2; }\n}\n',
+                encoding="utf-8",
             )
             rows, _ = s.collect_code(d, "needle")
             self.assertEqual(rows[0]["symbol"], "Store.save")
@@ -38,7 +40,8 @@ class SemanticTools(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "x.py"
             p.write_text(
-                'def outer():\n    def inner():\n        return "needle"\n    return inner() # needle\n'
+                'def outer():\n    def inner():\n        return "needle"\n    return inner() # needle\n',
+                encoding="utf-8",
             )
             rows, _ = s.collect_code(d, "needle")
             self.assertEqual(len(rows), 1)
@@ -50,7 +53,8 @@ class SemanticTools(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "x.ts"
             p.write_text(
-                "function decode(x: unknown) {\n const needle = <string>x;\n return needle;\n}\n"
+                "function decode(x: unknown) {\n const needle = <string>x;\n return needle;\n}\n",
+                encoding="utf-8",
             )
             rows, _ = s.collect_code(d, "needle")
             self.assertEqual(rows[0]["symbol"], "decode")
@@ -59,14 +63,16 @@ class SemanticTools(unittest.TestCase):
     def test_search_limit_never_claims_exhaustive(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "x.py"
-            p.write_text('def a():\n return "needle"\ndef b():\n return "needle"\n')
+            p.write_text(
+                'def a():\n return "needle"\ndef b():\n return "needle"\n', encoding="utf-8"
+            )
             rows, meta = s.collect_code(d, "needle", limit=1)
             self.assertTrue(meta["candidate_limit_reached"])
 
     def test_parser_unavailable_retains_reviewable_source(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "x.js"
-            p.write_text('function f() { return "needle"; }')
+            p.write_text('function f() { return "needle"; }', encoding="utf-8")
             with patch("jev_context.symbols.parse_symbols", side_effect=ImportError()):
                 rows, _ = s.collect_code(d, "needle")
             self.assertEqual(rows[0]["fetch_error"], "parser_unavailable")
@@ -75,10 +81,10 @@ class SemanticTools(unittest.TestCase):
     def test_code_revision_change_is_not_returned_as_match(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "x.py"
-            p.write_text('def f():\n return "needle"\n')
+            p.write_text('def f():\n return "needle"\n', encoding="utf-8")
 
             def analysis(records, *args):
-                p.write_text('def f():\n return "changed"\n')
+                p.write_text('def f():\n return "changed"\n', encoding="utf-8")
                 rid = records[0]["id"]
                 return {
                     "ok": True,

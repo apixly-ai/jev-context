@@ -20,23 +20,33 @@ jobs:
         include:
           - python: '3.13'
             os: macos-latest
+          - python: '3.13'
+            os: windows-latest
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python }}
       - run: |
-          if [ "$RUNNER_OS" = Linux ]; then sudo apt-get update && sudo apt-get install -y ripgrep; else brew list ripgrep || brew install ripgrep; fi
+          case "$RUNNER_OS" in
+            Linux) sudo apt-get update && sudo apt-get install -y ripgrep ;;
+            macOS) brew list ripgrep || brew install ripgrep ;;
+            Windows) choco install ripgrep -y --no-progress ;;
+          esac
       - run: python -m pip install --upgrade pip
       - run: python -m pip install '.[code,dev]'
       - run: sh scripts/check.sh
       - run: |
-          python -m venv /tmp/jev-wheel
-          /tmp/jev-wheel/bin/pip install dist/*.whl
-          cd /tmp
-          /tmp/jev-wheel/bin/jev-filter --version
-          /tmp/jev-wheel/bin/jev-filter doctor
+          python -m venv "$RUNNER_TEMP/jev-wheel"
+          if [ "$RUNNER_OS" = Windows ]; then BIN="$RUNNER_TEMP/jev-wheel/Scripts"; else BIN="$RUNNER_TEMP/jev-wheel/bin"; fi
+          "$BIN/pip" install dist/*.whl
+          cd "$RUNNER_TEMP"
+          "$BIN/jev-filter" --version
+          "$BIN/jev-filter" doctor
   browser:
     runs-on: ubuntu-latest
     steps:

@@ -122,7 +122,7 @@ def save_archive(payload, destination=None):
     else:
         fd, name = tempfile.mkstemp(prefix="jev-context-", suffix=".json")
         path = Path(name)
-    with os.fdopen(fd, "w") as stream:
+    with os.fdopen(fd, "w", encoding="utf-8") as stream:
         json.dump(payload, stream, ensure_ascii=False)
     return str(path)
 
@@ -235,7 +235,7 @@ def main():
     if args.command == "batch":
         from .batch import run
 
-        with sys.stdin if args.input == "-" else open(args.input) as stream:
+        with sys.stdin if args.input == "-" else open(args.input, encoding="utf-8") as stream:
             items = json.load(stream)
         result = run(items, workers=args.workers)
         rendered = json.dumps(result, ensure_ascii=False, separators=(",", ":"))
@@ -245,7 +245,7 @@ def main():
         print(rendered)
         return 0 if result["ok"] else 2
     if args.command == "list":
-        payload = json.loads(Path(args.archive).read_text())
+        payload = json.loads(Path(args.archive).read_text(encoding="utf-8"))
         print(
             json.dumps(
                 [
@@ -258,7 +258,7 @@ def main():
         )
         return 0
     if args.command == "read":
-        payload = json.loads(Path(args.archive).read_text())
+        payload = json.loads(Path(args.archive).read_text(encoding="utf-8"))
         record = next((r for r in payload["records"] if r["id"] == args.id), None)
         if record is None:
             raise ValueError("Unknown source ID")
@@ -269,7 +269,9 @@ def main():
     if not 1 <= args.budget_chars or not 1 <= args.max_parts <= 10000:
         raise ValueError("Positive budget and max-parts in 1..10000 required")
     started = time.perf_counter()
-    spec = analysis.validate(json.loads(Path(args.analysis).read_text()) if args.analysis else None)
+    spec = analysis.validate(
+        json.loads(Path(args.analysis).read_text(encoding="utf-8")) if args.analysis else None
+    )
     if args.mode != "auto":
         spec["mode"] = args.mode
     if args.batch_size != "auto":
@@ -294,7 +296,7 @@ def main():
             argv, args.cwd, args.timeout, args.max_bytes, args.split, args.accept_exit
         )
     else:
-        with sys.stdin if args.input == "-" else open(args.input) as stream:
+        with sys.stdin if args.input == "-" else open(args.input, encoding="utf-8") as stream:
             records = json.load(stream)
         collection = {"scope": "supplied records only; no URLs fetched"}
     records = normalize(records)

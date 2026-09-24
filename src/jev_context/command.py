@@ -2,11 +2,111 @@
 
 import json
 import os
+import queue
 import re
 import selectors
 import signal
 import subprocess
+import threading
 import time
+
+_POSIX = os.name == "posix"
+
+
+def _popen(argv, cwd):
+    """Start the collector in its own session/process group so the whole tree can be killed."""
+    extra = (
+        {"start_new_session": True}
+        if _POSIX
+        else {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
+    )
+    return subprocess.Popen(
+        argv,
+        cwd=cwd,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        **extra,
+    )
+
+
+def _kill_tree(proc):
+    """Kill the command's whole process tree, including pipe-holding children."""
+    if _POSIX:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        return
+    if proc.poll() is not None:
+        return
+    # taskkill /T is the Windows equivalent of killing the process group; proc.kill() alone
+    # would leave grandchildren holding the pipes open.
+    subprocess.run(
+        ["taskkill", "/F", "/T", "/PID", str(proc.pid)],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    try:
+        proc.kill()
+    except OSError:
+        pass
+
+
+def _chunks_posix(proc, remaining):
+    with selectors.DefaultSelector() as selector:
+        selector.register(proc.stdout, selectors.EVENT_READ, "stdout")
+        selector.register(proc.stderr, selectors.EVENT_READ, "stderr")
+        while selector.get_map():
+            left = remaining()
+            if left <= 0:
+                yield "timeout", None
+                return
+            for key, _ in selector.select(min(left, 0.1)):
+                block = os.read(key.fileobj.fileno(), 65536)
+                if not block:
+                    selector.unregister(key.fileobj)
+                    continue
+                yield key.data, block
+
+
+def _chunks_threads(proc, remaining):
+    # select() only works on sockets on Windows, so pipes are drained by reader threads.
+    pending = queue.Queue()
+
+    def pump(stream, name):
+        try:
+            while True:
+                block = os.read(stream.fileno(), 65536)
+                if not block:
+                    break
+                pending.put((name, block))
+        except OSError:
+            pass
+        finally:
+            pending.put((name, None))
+
+    for stream, name in ((proc.stdout, "stdout"), (proc.stderr, "stderr")):
+        threading.Thread(target=pump, args=(stream, name), daemon=True).start()
+    open_streams = 2
+    while open_streams:
+        left = remaining()
+        if left <= 0:
+            yield "timeout", None
+            return
+        try:
+            name, block = pending.get(timeout=min(left, 0.1))
+        except queue.Empty:
+            continue
+        if block is None:
+            open_streams -= 1
+            continue
+        yield name, block
+
+
+_chunks = _chunks_posix if _POSIX else _chunks_threads
 
 
 def collect_command(
@@ -21,59 +121,39 @@ def collect_command(
     ):
         raise ValueError("Invalid command limits or split mode")
     started = time.perf_counter()
-    proc = subprocess.Popen(
-        argv,
-        cwd=cwd,
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        start_new_session=True,
-    )
+    proc = _popen(argv, cwd)
     buffers = {"stdout": bytearray(), "stderr": bytearray()}
     total, stop_reason = 0, None
-    with selectors.DefaultSelector() as selector:
-        selector.register(proc.stdout, selectors.EVENT_READ, "stdout")
-        selector.register(proc.stderr, selectors.EVENT_READ, "stderr")
-        try:
-            while selector.get_map():
-                remaining = timeout - (time.perf_counter() - started)
-                if remaining <= 0:
-                    stop_reason = "timeout"
-                    break
-                for key, _ in selector.select(min(remaining, 0.1)):
-                    block = os.read(key.fileobj.fileno(), 65536)
-                    if not block:
-                        selector.unregister(key.fileobj)
-                        continue
-                    take = min(len(block), max_bytes - total)
-                    buffers[key.data].extend(block[:take])
-                    total += take
-                    if take < len(block):
-                        stop_reason = "output_limit"
-                        break
-                if stop_reason:
-                    break
-            if not stop_reason:
-                try:
-                    proc.wait(timeout=max(0.001, timeout - (time.perf_counter() - started)))
-                except subprocess.TimeoutExpired:
-                    stop_reason = "timeout"
-        except BaseException:
+
+    def remaining():
+        return timeout - (time.perf_counter() - started)
+
+    try:
+        for name, block in _chunks(proc, remaining):
+            if name == "timeout":
+                stop_reason = "timeout"
+                break
+            take = min(len(block), max_bytes - total)
+            buffers[name].extend(block[:take])
+            total += take
+            if take < len(block):
+                stop_reason = "output_limit"
+                break
+        if not stop_reason:
             try:
-                os.killpg(proc.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-            raise
-        finally:
-            # Kill this command's process group on timeout/overflow, including pipe-holding children.
-            if stop_reason or proc.poll() is None:
-                try:
-                    os.killpg(proc.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-            proc.wait()
-            proc.stdout.close()
-            proc.stderr.close()
+                proc.wait(timeout=max(0.001, remaining()))
+            except subprocess.TimeoutExpired:
+                stop_reason = "timeout"
+    except BaseException:
+        _kill_tree(proc)
+        raise
+    finally:
+        # Kill this command's process tree on timeout/overflow, including pipe-holding children.
+        if stop_reason or proc.poll() is None:
+            _kill_tree(proc)
+        proc.wait()
+        proc.stdout.close()
+        proc.stderr.close()
     stdout, stderr = (
         bytes(buffers[k]).decode("utf-8", errors="replace") for k in ("stdout", "stderr")
     )

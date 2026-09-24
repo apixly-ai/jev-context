@@ -2,6 +2,7 @@
 
 import errno
 import json
+import os
 import secrets
 import sys
 import webbrowser
@@ -18,6 +19,10 @@ DEFAULT_PORT = 8765
 class DashboardHTTPServer(ThreadingHTTPServer):
     # Never share a port with another instance carrying a different access token.
     allow_reuse_port = False
+    # On Windows SO_REUSEADDR lets a second bind to a busy port succeed instead of raising
+    # EADDRINUSE, which would silently start a second instance on the same port and defeat the
+    # busy-port detection below. POSIX keeps it to skip the TIME_WAIT wait on restart.
+    allow_reuse_address = os.name == "posix"
 
 
 class PortInUse(ValueError):
@@ -25,7 +30,7 @@ class PortInUse(ValueError):
 
 
 def page(data, live=False):
-    template = Path(__file__).with_name("dashboard.html").read_text()
+    template = Path(__file__).with_name("dashboard.html").read_text(encoding="utf-8")
     payload = (
         json.dumps(data, ensure_ascii=False)
         .replace("<", "\\u003c")

@@ -63,7 +63,7 @@ class CommandTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             marker = Path(d) / "marker"
             spec = Path(d) / "bad.json"
-            spec.write_text('{"questions":{}}')
+            spec.write_text('{"questions":{}}', encoding="utf-8")
             cli = "-m"
             p = subprocess.run(
                 [
@@ -107,7 +107,7 @@ class CommandTests(unittest.TestCase):
                 text=True,
             )
             output = json.loads(p.stdout)
-            self.assertEqual(marker.read_text(), "x")
+            self.assertEqual(marker.read_text(encoding="utf-8"), "x")
             self.assertEqual(p.returncode, 2)
             self.assertEqual(output["collection"]["exit_code"], 7)
             self.assertEqual(output["telemetry"]["network_questions"], 0)

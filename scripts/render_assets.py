@@ -34,7 +34,7 @@ plt.rcParams.update(
         "svg.fonttype": "none",
     }
 )
-data = json.loads((ROOT / "benchmarks/results/2026-09-22-live.json").read_text())
+data = json.loads((ROOT / "benchmarks/results/2026-09-22-live.json").read_text(encoding="utf-8"))
 names = ["single_serial", "batch_serial", "single_parallel", "batch_parallel"]
 labels = ["Single · serial", "Batch · serial", "Single · parallel", "Batch + parallel"]
 colors = ["#cbd5e1", PURPLE, "#94a3b8", MINT]
@@ -164,7 +164,7 @@ hero = """<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" view
 <text x="860" y="311" fill="#b7b7d0" font-size="16">Relevant records + unresolved IDs</text>
 <text x="55" y="383" fill="#91a5bd" font-size="16">Originals retained locally</text><text x="433" y="383" fill="#91a5bd" font-size="16">Up to 30 concurrent requests</text><text x="838" y="383" fill="#91a5bd" font-size="16">No result cache</text>
 </g></svg>"""
-(OUT / "hero.svg").write_text(hero)
+(OUT / "hero.svg").write_text(hero, encoding="utf-8")
 print("Rendered hero and benchmark charts from checked-in data.")
 
 # Localized artwork uses the same data; no English paragraphs are mixed into Chinese pages.
@@ -294,4 +294,4 @@ for english, chinese in {
 }.items():
     hero_cn = hero_cn.replace(english, chinese)
 hero_cn = hero_cn.replace("Arial,Helvetica,sans-serif", "PingFang SC,Microsoft YaHei,sans-serif")
-(OUT / "hero.zh-CN.svg").write_text(hero_cn)
+(OUT / "hero.zh-CN.svg").write_text(hero_cn, encoding="utf-8")

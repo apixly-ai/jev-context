@@ -11,7 +11,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 root = Path(__file__).resolve().parents[1]
-package = json.loads((root / "package.json").read_text())
+package = json.loads((root / "package.json").read_text(encoding="utf-8"))
 os_name = {"Darwin": "darwin", "Linux": "linux"}[platform.system()]
 arch = {"arm64": "arm64", "aarch64": "arm64", "x86_64": "x64", "AMD64": "x64"}[platform.machine()]
 version = package["version"]
@@ -64,10 +64,10 @@ with tempfile.TemporaryDirectory() as temp:
         check=True,
     )
     contract = base / "contract.json"
-    contract.write_text(json.dumps({"mode": "passthrough"}))
+    contract.write_text(json.dumps({"mode": "passthrough"}), encoding="utf-8")
     fixture = base / "code"
     fixture.mkdir()
-    (fixture / "example.py").write_text('def example():\n    return "needle"\n')
+    (fixture / "example.py").write_text('def example():\n    return "needle"\n', encoding="utf-8")
     result = subprocess.run(
         [
             str(cli),
@@ -101,7 +101,9 @@ with tempfile.TemporaryDirectory() as temp:
         capture_output=True,
         check=True,
     )
-    assert "__DATA__" not in dashboard.read_text() and "JEV FILTER" in dashboard.read_text()
+    assert "__DATA__" not in dashboard.read_text(
+        encoding="utf-8"
+    ) and "JEV FILTER" in dashboard.read_text(encoding="utf-8")
     # Repeated default launches must both return usable, distinct loopback URLs.
     servers = []
     try:
