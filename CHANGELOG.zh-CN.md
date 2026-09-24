@@ -2,7 +2,9 @@
 
 [English](CHANGELOG.md)
 
-## 未发布
+## 0.2.4 — 2026-09-24
+
+- `--input -` 与 JSON 输出强制 UTF-8，不再受控制台代码页影响；Windows（GBK）下管道传入记录此前会报 `JSONDecodeError`。
 
 - npm 发布对每个包最多等待约 15 分钟让 registry 完成异步处理（原约 4 分钟，导致 0.2.3 每发一个平台包就中止）；工作流超时相应提高到 90 分钟。
 

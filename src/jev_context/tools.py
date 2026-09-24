@@ -373,7 +373,17 @@ def ambiguous_controls(records, selected_id):
     return same if len(same) > 1 else []
 
 
+def _utf8_stdio():
+    """Windows consoles default to the locale codepage (e.g. GBK); records and output are UTF-8."""
+    for stream in (sys.stdin, sys.stdout):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except (AttributeError, ValueError):
+            pass
+
+
 def main(argv=None):
+    _utf8_stdio()
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
     for name in ("code-search", "locate", "triage"):

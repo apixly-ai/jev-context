@@ -127,7 +127,17 @@ def save_archive(payload, destination=None):
     return str(path)
 
 
+def _utf8_stdio():
+    """Windows consoles default to the locale codepage (e.g. GBK); records and output are UTF-8."""
+    for stream in (sys.stdin, sys.stdout):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except (AttributeError, ValueError):
+            pass
+
+
 def main():
+    _utf8_stdio()
     if len(sys.argv) > 1 and sys.argv[1] == "stats":
         from .stats import main as stats_main
 
