@@ -2,6 +2,14 @@
 
 [English](CHANGELOG.md)
 
+## 0.2.3 — 2026-09-24
+
+- Python 包可在 Windows 原生运行：`pool` 不再强制导入 POSIX 专有的 `resource`；key 文件读取不依赖 `O_NOFOLLOW`/`getuid`（仍拒绝符号链接，Unix 权限位检查仅 POSIX）；`exec` 在没有 `select()`/`killpg` 的平台用读线程接管道、用 `taskkill /T` 结束整棵进程树。
+- 看板在 Windows 上不再设置 `SO_REUSEADDR`，避免第二个实例绑到已占用端口而不报 `EADDRINUSE`；端口占用回退与 `PortInUse` 各平台行为一致。
+- 所有文本文件（看板模板、定位脚本、`--input` JSON、统计配置与导出）显式按 UTF-8 读写，不再依赖进程区域设置。
+- CI 增加 `windows-latest` 测试。
+- 文档：Windows 原生安装改为 GitHub Release wheel 或 git 源安装，未发布到 PyPI。
+
 ## 0.2.2 — 2026-09-23
 
 - 看板启动后自动用默认浏览器打开带访问令牌的本机链接，无界面环境可用 `--no-open`。
