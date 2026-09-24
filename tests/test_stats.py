@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
@@ -36,7 +37,8 @@ def test_ledger_privacy_and_net_arithmetic(home):
     assert row["method"] == "utf8_bytes_div_4_estimate"
     assert b"SECRET" not in (home / "usage.sqlite3").read_bytes()
     assert "SECRET" not in json.dumps(data)
-    assert (home / "usage.sqlite3").stat().st_mode & 0o777 == 0o600
+    if os.name == "posix":  # Windows has no Unix mode bits; privacy comes from the profile ACL.
+        assert (home / "usage.sqlite3").stat().st_mode & 0o777 == 0o600
 
 
 def test_unknown_usage_and_incomplete_are_not_zero_savings(home):
@@ -98,7 +100,7 @@ def test_cli_automatically_records_exact_rendered_output(home, monkeypatch, caps
     from jev_context import cli
 
     path = tmp_path / "records.json"
-    path.write_text(json.dumps([{"id": "a", "text": "hello"}]))
+    path.write_text(json.dumps([{"id": "a", "text": "hello"}]), encoding="utf-8")
     monkeypatch.setattr(
         "sys.argv",
         ["jev-filter", "query", "--input", str(path), "--task", "read", "--mode", "passthrough"],
@@ -165,7 +167,7 @@ def test_cli_config_report_export_disable(tmp_path, monkeypatch, capsys):
     assert json.loads(capsys.readouterr().out)["summary"]["runs"] == 0
     target = tmp_path / "dashboard.html"
     stats.main(["dashboard", "--html", str(target)])
-    assert "__DATA__" not in target.read_text()
+    assert "__DATA__" not in target.read_text(encoding="utf-8")
     with pytest.raises(FileExistsError):
         stats.main(["dashboard", "--html", str(target)])
     stats.main(["disable"])

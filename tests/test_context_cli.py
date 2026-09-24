@@ -49,15 +49,16 @@ class ContextTests(unittest.TestCase):
             path = Path(directory) / "archive.json"
             payload = {"records": [{"text": "original"}]}
             cli.save_archive(payload, path)
-            self.assertEqual(os.stat(path).st_mode & 0o777, 0o600)
+            if os.name == "posix":  # Windows has no Unix mode bits.
+                self.assertEqual(os.stat(path).st_mode & 0o777, 0o600)
             with self.assertRaises(FileExistsError):
                 cli.save_archive({}, path)
-            self.assertEqual(json.loads(path.read_text()), payload)
+            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), payload)
 
     def test_search_real_lines_and_scope_limit(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "data.txt"
-            path.write_text("before\nneedle\nafter\nextra\n")
+            path.write_text("before\nneedle\nafter\nextra\n", encoding="utf-8", newline="\n")
             records, scope = cli.collect_search(directory, "needle", 10)
             self.assertEqual(records[0]["line"], 1)
             self.assertEqual(records[0]["end_line"], 4)

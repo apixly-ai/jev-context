@@ -20,7 +20,9 @@ Do not submit customer data, prompts from private work, tokens, browser state,
 absolute home paths, or unsanitized model traces. Report security issues privately
 using SECURITY.md. By contributing, you license your contribution under MIT.
 
-Supported environments: Linux/macOS, Python 3.10+. Native Windows execution is not
-supported in 0.1; use WSL. `rg` is required for search. Optional code grammars are
+Supported environments: Linux/macOS/Windows, Python 3.10+ (the npm launcher ships
+POSIX binaries only; Windows users of npm use WSL). On Windows, `TYPESAFE_API_KEY_FILE`
+symlinks are rejected but Unix owner/mode checks do not apply; keep the file inside a
+directory only your account can read. `rg` is required for search. Optional code grammars are
 installed by the `code` extra. Browser verification uses a local Camofox-compatible
 service; its test suite uses a controlled Playwright page.

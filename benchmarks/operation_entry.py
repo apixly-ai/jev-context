@@ -10,7 +10,7 @@ from jev_context.command import collect_command
 
 
 def main():
-    config = json.loads(Path(sys.argv[1]).read_text())
+    config = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
     base = Path(config["base"])
     case = config["case"]
     if config["arm"] == "filtered":
@@ -53,7 +53,7 @@ def main():
     if case == "code-search":
         records, meta = tools.collect_code(base / "code", "session")
     elif case == "triage":
-        records, meta = tools.collect_logs((base / "events.jsonl").read_text())
+        records, meta = tools.collect_logs((base / "events.jsonl").read_text(encoding="utf-8"))
     elif case == "exec":
         records, meta = collect_command(
             [
@@ -70,7 +70,7 @@ def main():
             config["tab"],
             {"origin": config["origin"], "scope": "body", "limit": 200},
         )
-        Path(config["observation"]).write_text(json.dumps(observed))
+        Path(config["observation"]).write_text(json.dumps(observed), encoding="utf-8")
         records = [tools.safe_control(r) for r in observed["records"] if r["enabled"]]
         meta = {k: v for k, v in observed.items() if k != "records"}
     print(

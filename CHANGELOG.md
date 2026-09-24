@@ -3,6 +3,14 @@
 The format follows Keep a Changelog; versions follow SemVer within the limitations
 of a 0.x API (minor releases may make documented breaking changes).
 
+## [Unreleased]
+
+### Fixed
+- The Python package runs natively on Windows: `pool` no longer imports the POSIX-only `resource` module, key files are read without `O_NOFOLLOW`/`getuid` (symlinks still rejected; Unix mode checks are POSIX-only), and `exec` drains pipes with reader threads and kills the command tree with `taskkill /T` where `select()` and `killpg` are unavailable.
+- The dashboard no longer sets `SO_REUSEADDR` on Windows, where it let a second instance bind a busy port instead of raising `EADDRINUSE`; busy-port fallback and `PortInUse` now behave the same on every platform.
+- All text files (dashboard template, locator script, `--input` JSON, stats config/exports) are read and written as UTF-8 explicitly instead of the process locale, which is not UTF-8 on Windows by default.
+- CI runs the test suite on `windows-latest` in addition to Linux and macOS.
+
 ## [0.2.2] - 2026-09-23
 
 ### Added

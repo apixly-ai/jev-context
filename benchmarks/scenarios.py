@@ -18,7 +18,7 @@ def build(base):
         else:
             text = f'def session_presentation_{i}(state):\n    """Format session details for display without persisting anything."""\n    label = "Session panel {i}"\n    fields = sorted(state.keys())\n    return {{"label": label, "fields": fields, "preview_only": True}}\n\n'
         chunks.append(text)
-    (code / "session_store.py").write_text("".join(chunks))
+    (code / "session_store.py").write_text("".join(chunks), encoding="utf-8")
     logs = []
     for i in range(60):
         rid = f"req-{i:03}"
@@ -56,7 +56,9 @@ def build(base):
                     "message": "After recovery, the CURRENT attempt received HTTP 200 and a valid body.",
                 }
             )
-    (base / "events.jsonl").write_text("\n".join(json.dumps(r) for r in logs) + "\n")
+    (base / "events.jsonl").write_text(
+        "\n".join(json.dumps(r) for r in logs) + "\n", encoding="utf-8"
+    )
     html = """<!doctype html><meta charset="utf-8"><style>body{font:12px sans-serif;margin:10px}section{display:grid;grid-template-columns:repeat(10,90px);gap:3px}h2{grid-column:1/-1;margin:5px}button{font:10px sans-serif;height:48px;width:90px}</style>"""
     for group in ["Current project", "All projects"]:
         html += f'<section aria-label="{group}"><h2>{group}</h2>'
@@ -75,7 +77,7 @@ def build(base):
                 disabled = ""
             html += f'<button id="{identifier}"{disabled}>{text}</button>'
         html += "</section>"
-    (base / "page.html").write_text(html)
+    (base / "page.html").write_text(html, encoding="utf-8")
     code_spec = {
         "mode": "filter",
         "requirements": [
@@ -103,8 +105,8 @@ def build(base):
         ],
         "fields": ["source_id", "answers", "source"],
     }
-    (base / "code-analysis.json").write_text(json.dumps(code_spec))
-    (base / "triage-analysis.json").write_text(json.dumps(log_spec))
+    (base / "code-analysis.json").write_text(json.dumps(code_spec), encoding="utf-8")
+    (base / "triage-analysis.json").write_text(json.dumps(log_spec), encoding="utf-8")
     command_records = []
     for i in range(80):
         if i in (11, 52):
@@ -116,7 +118,7 @@ def build(base):
         else:
             text = f"Review item {i}: documentation formatting improvement. Current security checks passed; no release blocker."
         command_records.append({"id": f"item-{i:03}", "text": text})
-    (base / "command-records.json").write_text(json.dumps(command_records))
+    (base / "command-records.json").write_text(json.dumps(command_records), encoding="utf-8")
     (base / "command-analysis.json").write_text(
         json.dumps(
             {
@@ -130,7 +132,8 @@ def build(base):
                 ],
                 "fields": ["source_id", "answers", "source"],
             }
-        )
+        ),
+        encoding="utf-8",
     )
     (base / "cases.json").write_text(
         json.dumps(
@@ -153,7 +156,8 @@ def build(base):
                 },
             ],
             indent=2,
-        )
+        ),
+        encoding="utf-8",
     )
 
 

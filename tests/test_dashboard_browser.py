@@ -42,7 +42,7 @@ def test_dashboard_filters_export_and_mobile(tmp_path, monkeypatch):
         assert tab.locator("#tokens").inner_text() == "900"
         with tab.expect_download() as download:
             tab.locator("#export").click()
-        exported = json.loads(Path(download.value.path()).read_text())
+        exported = json.loads(Path(download.value.path()).read_text(encoding="utf-8"))
         assert len(exported["events"]) == 1
         assert exported["events"][0]["model"] == "fixture-gpt"
         tab.locator("#reset").click()

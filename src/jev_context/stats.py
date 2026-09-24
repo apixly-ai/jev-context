@@ -67,7 +67,7 @@ def configure(
     root.mkdir(parents=True, exist_ok=True, mode=0o700)
     fd, name = tempfile.mkstemp(dir=root)
     try:
-        with os.fdopen(fd, "w") as out:
+        with os.fdopen(fd, "w", encoding="utf-8") as out:
             json.dump(config, out)
         os.replace(name, root / "config.json")
     finally:
@@ -150,7 +150,7 @@ def record(tool, before, after, result, *, comparable=True):
     if not path.exists():
         return None
     try:
-        config = json.loads(path.read_text())
+        config = json.loads(path.read_text(encoding="utf-8"))
         telemetry = result.get("telemetry", result)
         usage = telemetry.get("usage") or {}
         complete = result.get("ok", False) and result.get("complete", comparable)
@@ -333,7 +333,7 @@ def main(argv):
         data = report(args.model, args.since, args.until)
         if args.html:
             fd = os.open(Path(args.html).expanduser(), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-            with os.fdopen(fd, "w") as out:
+            with os.fdopen(fd, "w", encoding="utf-8") as out:
                 out.write(page(data))
             print(json.dumps({"html": str(Path(args.html).resolve())}))
         else:

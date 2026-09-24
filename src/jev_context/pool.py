@@ -1,17 +1,24 @@
 """Configurable independent inference concurrency over the installed pooled transport."""
 
 import concurrent.futures
-import resource
 import time
+
+try:
+    import resource
+except ImportError:  # Windows has no descriptor soft limit to consult.
+    resource = None
 
 
 def worker_count(requests, requested="auto"):
     if not requests:
         return 0
     if requested == "auto":
-        soft, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
-        # Reserve descriptors for the host process; this is an OS-resource bound, not a model limit.
-        capacity = requests if soft == resource.RLIM_INFINITY else max(1, (soft - 32) // 4)
+        capacity = requests
+        if resource is not None:
+            soft, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
+            # Reserve descriptors for the host process; an OS-resource bound, not a model limit.
+            if soft != resource.RLIM_INFINITY:
+                capacity = max(1, (soft - 32) // 4)
         return min(requests, capacity, 30)
     if isinstance(requested, str):
         requested = int(requested)

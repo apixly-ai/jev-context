@@ -13,7 +13,7 @@ from matplotlib import font_manager
 
 ROOT = Path(__file__).resolve().parents[1]
 path = ROOT / "benchmarks/results/2026-09-23-operations.json"
-data = json.loads(path.read_text())
+data = json.loads(path.read_text(encoding="utf-8"))
 summary = []
 for model in data["models"]:
     for case in ("code-search", "locate", "triage", "exec"):
@@ -66,9 +66,12 @@ for model in data["models"]:
         summary.append(item)
 (ROOT / "benchmarks/results/2026-09-23-operations-summary.json").write_text(
     json.dumps({"scope": data["scope"], "pricing": data["pricing"], "rows": summary}, indent=2)
-    + "\n"
+    + "\n",
+    encoding="utf-8",
 )
-with (ROOT / "benchmarks/results/2026-09-23-operations.csv").open("w", newline="") as stream:
+with (ROOT / "benchmarks/results/2026-09-23-operations.csv").open(
+    "w", newline="", encoding="utf-8"
+) as stream:
     columns = [
         "model",
         "case",
@@ -231,5 +234,7 @@ for locale in ("en", "zh-CN"):
         lines.append(
             f"| {model} | {scenario} | {row['context_reduction_pct']:.1f}% | {-row['cold_cost_reduction_pct']:+.1f}% | {row['latency_change_pct']:+.1f}% | {row['raw']['complete_correct']}/3 → {row['filtered']['complete_correct']}/3 |"
         )
-    (ROOT / f"benchmarks/results/operations-table.{locale}.md").write_text("\n".join(lines) + "\n")
+    (ROOT / f"benchmarks/results/operations-table.{locale}.md").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
 print("Generated operation summary, CSV, localized charts and tables.")

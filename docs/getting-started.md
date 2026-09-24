@@ -4,7 +4,7 @@
 
 ## Recommended: npm CLI
 
-Node.js 22+ on macOS or Linux; Windows users can use WSL.
+Node.js 22+ on macOS or Linux; Windows users can use WSL or install the Python package natively (`pip install jev-filter`).
 The platform package includes the Python runtime and code parsers.
 
 ```sh

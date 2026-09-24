@@ -7,7 +7,7 @@ import subprocess
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-package = json.loads((root / "package.json").read_text())
+package = json.loads((root / "package.json").read_text(encoding="utf-8"))
 stage = root / "build/npm/main"
 if stage.exists():
     shutil.rmtree(stage)
@@ -24,7 +24,7 @@ base = f"https://github.com/apixly-ai/jev-filter/blob/v{package['version']}/"
 raw = f"https://raw.githubusercontent.com/apixly-ai/jev-filter/v{package['version']}/"
 for name in ("README.md", "README.zh-CN.md"):
     p = stage / name
-    text = p.read_text()
+    text = p.read_text(encoding="utf-8")
     text = re.sub(r"(!\[[^\]]*\]\()([^:)#]+)(\))", lambda m: m[1] + raw + m[2] + m[3], text)
     text = re.sub(r"(\]\()([^:)#]+)(\))", lambda m: m[1] + base + m[2] + m[3], text)
     text = re.sub(r'(src=")([^":]+)(")', lambda m: m[1] + raw + m[2] + m[3], text)
@@ -33,9 +33,9 @@ for name in ("README.md", "README.zh-CN.md"):
         lambda m: m[0] if "://" in m[2] else m[1] + base + m[2] + m[3],
         text,
     )
-    p.write_text(text)
+    p.write_text(text, encoding="utf-8")
 package.pop("scripts", None)
-(stage / "package.json").write_text(json.dumps(package, indent=2) + "\n")
+(stage / "package.json").write_text(json.dumps(package, indent=2) + "\n", encoding="utf-8")
 (root / "dist").mkdir(exist_ok=True)
 subprocess.run(
     ["npm", "pack", "--ignore-scripts", "--pack-destination", str(root / "dist")],

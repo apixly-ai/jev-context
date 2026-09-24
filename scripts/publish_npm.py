@@ -28,7 +28,7 @@ def verified_packages(directory, tag):
     if {p.name for p in directory.glob("*.tgz")} != expected:
         raise ValueError("Exactly the four native tarballs and main tarball are required")
     checksums = {}
-    for line in (directory / "SHA256SUMS").read_text().splitlines():
+    for line in (directory / "SHA256SUMS").read_text(encoding="utf-8").splitlines():
         digest, filename = line.split()
         if filename in checksums or not re.fullmatch(r"[a-f0-9]{64}", digest):
             raise ValueError("Invalid or duplicate checksum")

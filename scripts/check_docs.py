@@ -25,7 +25,7 @@ class Page(HTMLParser):
 pages = {}
 for path in ROOT.rglob("*.html"):
     parser = Page()
-    parser.feed(path.read_text())
+    parser.feed(path.read_text(encoding="utf-8"))
     pages[path.resolve()] = parser
 if not pages:
     raise SystemExit("No built documentation pages found")

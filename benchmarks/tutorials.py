@@ -52,7 +52,9 @@ def main():
             }
         )
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(json.dumps({"complete": False, "rows": rows}, indent=2) + "\n")
+        target.write_text(
+            json.dumps({"complete": False, "rows": rows}, indent=2) + "\n", encoding="utf-8"
+        )
         if not okay:
             raise RuntimeError("Tutorial failed: " + name)
         return payload
@@ -62,11 +64,11 @@ def main():
         build(base)
         run("doctor-live", ["doctor", "--live"])
         for locale in ("", ".zh-CN"):
-            text = (root / f"docs/agent-quickstart{locale}.md").read_text()
+            text = (root / f"docs/agent-quickstart{locale}.md").read_text(encoding="utf-8")
             spec = json.loads(re.search(r"```json\n(.*?)\n```", text, re.S)[1])
             records = json.loads(re.search(r"<<'JSON'\n(.*?)\nJSON", text, re.S)[1])
             config = base / "quickstart.json"
-            config.write_text(json.dumps(spec))
+            config.write_text(json.dumps(spec), encoding="utf-8")
             run(
                 "agent-quickstart" + locale,
                 [
@@ -82,7 +84,7 @@ def main():
                 ["b"],
             )
             missing = {**spec, "context": {}}
-            config.write_text(json.dumps(missing))
+            config.write_text(json.dumps(missing), encoding="utf-8")
             packet = run(
                 "missing-context" + locale,
                 [
@@ -231,7 +233,8 @@ def main():
             },
             indent=2,
         )
-        + "\n"
+        + "\n",
+        encoding="utf-8",
     )
     print(json.dumps({"passed": len(rows), "failed": 0}))
 

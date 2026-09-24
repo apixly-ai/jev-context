@@ -2,7 +2,7 @@
 
 ## 推荐：npm CLI
 
-需要 Node.js 22+，支持 macOS / Linux；Windows 使用 WSL。
+需要 Node.js 22+，支持 macOS / Linux；Windows 可用 WSL，或原生安装 Python 包（`pip install jev-filter`）。
 平台包包含 Python 运行时和代码解析器，无需自己配置 Python 环境。
 
 ```sh

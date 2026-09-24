@@ -27,7 +27,7 @@ class ContextContract(unittest.TestCase):
             d = Path(d)
             spec = d / "spec.json"
             marker = d / "marker"
-            spec.write_text(json.dumps({"required_context": ["scope.project"]}))
+            spec.write_text(json.dumps({"required_context": ["scope.project"]}), encoding="utf-8")
             command = [
                 sys.executable,
                 "-m",

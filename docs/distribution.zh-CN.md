@@ -15,7 +15,7 @@
 与 [esbuild](https://github.com/evanw/esbuild/blob/main/npm/esbuild/package.json) 的平台依赖设计。
 
 入口保留参数边界、输入输出流与退出状态，不把输入拼成 shell 命令。支持 macOS Intel/Apple Silicon
-和 Linux x64/ARM64。Linux 的 Python 运行时需要 glibc，暂不支持 Alpine/musl；Windows 使用 WSL。
+和 Linux x64/ARM64。Linux 的 Python 运行时需要 glibc，暂不支持 Alpine/musl；npm 启动器在 Windows 上使用 WSL；Python 包可在 Windows 原生运行。
 
 ## 安装验收
 

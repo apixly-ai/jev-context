@@ -338,7 +338,7 @@ def browser_call(session, tab, policy, op="observe", **kwargs):
         raise ValueError("Invalid named browser session")
     expression = (
         "("
-        + (HERE / "locator_dom.js").read_text()
+        + (HERE / "locator_dom.js").read_text(encoding="utf-8")
         + ")("
         + json.dumps({"policy": policy, "op": op, **kwargs})
         + ")"
@@ -404,7 +404,7 @@ def main(argv=None):
     if args.budget_chars < 1 or not args.task.strip():
         raise ValueError("Task and positive evidence budget required")
     spec = (
-        json.loads(Path(args.analysis).read_text())
+        json.loads(Path(args.analysis).read_text(encoding="utf-8"))
         if args.analysis
         else {"mode": "choose"}
         if args.command == "locate"

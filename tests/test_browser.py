@@ -8,7 +8,9 @@ import pytest
 @pytest.mark.browser
 def test_observe_excludes_values_and_guard_rejects_change():
     sync = pytest.importorskip("playwright.sync_api")
-    script = (Path(__file__).resolve().parents[1] / "src/jev_context/locator_dom.js").read_text()
+    script = (Path(__file__).resolve().parents[1] / "src/jev_context/locator_dom.js").read_text(
+        encoding="utf-8"
+    )
     with sync.sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()

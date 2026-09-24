@@ -11,7 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_contract_examples():
     for name in ("choose", "triage"):
-        analysis.validate(json.loads((ROOT / "examples" / f"{name}.json").read_text()))
+        analysis.validate(
+            json.loads((ROOT / "examples" / f"{name}.json").read_text(encoding="utf-8"))
+        )
 
 
 def test_go_receiver_and_function():
@@ -25,7 +27,7 @@ def test_markdown_relative_links_exist():
     import re
 
     for p in [*ROOT.glob("*.md"), *ROOT.glob("docs/*.md"), *ROOT.glob("skills/**/*.md")]:
-        for target in re.findall(r"\]\(([^)]+)\)", p.read_text()):
+        for target in re.findall(r"\]\(([^)]+)\)", p.read_text(encoding="utf-8")):
             if "://" in target or target.startswith("#"):
                 continue
             assert (p.parent / target.split("#")[0]).exists(), (p, target)
@@ -34,10 +36,10 @@ def test_markdown_relative_links_exist():
 def test_schema_matches_documented_examples():
     import jsonschema
 
-    schema = json.loads((ROOT / "schemas/analysis.schema.json").read_text())
+    schema = json.loads((ROOT / "schemas/analysis.schema.json").read_text(encoding="utf-8"))
     jsonschema.Draft202012Validator.check_schema(schema)
     for p in (ROOT / "examples").glob("*.json"):
-        data = json.loads(p.read_text())
+        data = json.loads(p.read_text(encoding="utf-8"))
         if isinstance(data, dict) and "mode" in data:
             jsonschema.validate(data, schema)
 
@@ -55,7 +57,7 @@ def test_english_guides_do_not_mix_translated_body_text():
     for p in (ROOT / "docs").glob("*.md"):
         if ".zh-CN." in p.name:
             continue
-        for line in p.read_text().splitlines():
+        for line in p.read_text(encoding="utf-8").splitlines():
             if re.search(r"[\u4e00-\u9fff]", line):
                 assert "]( " not in line and ("简体中文" in line or "中文使用说明" in line), (
                     p,
@@ -67,7 +69,9 @@ def test_chinese_guides_keep_localized_links():
     import re
 
     for p in [ROOT / "README.zh-CN.md", *(ROOT / "docs").glob("*.zh-CN.md")]:
-        for label, target in re.findall(r"\[([^\]]+)\]\(([^)]+\.md)(?:#[^)]*)?\)", p.read_text()):
+        for label, target in re.findall(
+            r"\[([^\]]+)\]\(([^)]+\.md)(?:#[^)]*)?\)", p.read_text(encoding="utf-8")
+        ):
             if "://" in target or label == "English":
                 continue
             if target.endswith("CHANGELOG.md"):
@@ -82,13 +86,13 @@ def test_agent_quickstart_contracts_plan_without_missing_context(tmp_path):
     import sys
 
     for locale in ("", ".zh-CN"):
-        text = (ROOT / f"docs/agent-quickstart{locale}.md").read_text()
+        text = (ROOT / f"docs/agent-quickstart{locale}.md").read_text(encoding="utf-8")
         spec = json.loads(re.search(r"```json\n(.*?)\n```", text, re.S)[1])
         records = json.loads(re.search(r"<<'JSON'\n(.*?)\nJSON", text, re.S)[1])
         config = tmp_path / "analysis.json"
         inputs = tmp_path / "records.json"
-        config.write_text(json.dumps(spec))
-        inputs.write_text(json.dumps(records))
+        config.write_text(json.dumps(spec), encoding="utf-8")
+        inputs.write_text(json.dumps(records), encoding="utf-8")
         result = subprocess.run(
             [
                 sys.executable,
