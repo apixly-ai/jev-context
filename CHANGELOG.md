@@ -3,9 +3,10 @@
 The format follows Keep a Changelog; versions follow SemVer within the limitations
 of a 0.x API (minor releases may make documented breaking changes).
 
-## [Unreleased]
+## [0.2.4] - 2026-09-24
 
 ### Fixed
+- `--input -` and JSON output are read and written as UTF-8 regardless of the console codepage; on Windows (GBK) piped records previously failed with `JSONDecodeError`.
 - npm publication waits up to ~15 minutes per package for the registry to finish asynchronous processing (previously ~4 minutes, which aborted the 0.2.3 publication after each platform bundle); the workflow timeout is raised to 90 minutes accordingly.
 
 ## [0.2.3] - 2026-09-24
